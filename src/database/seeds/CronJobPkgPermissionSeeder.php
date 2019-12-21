@@ -12,40 +12,48 @@ class CronJobPkgPermissionSeeder extends Seeder {
 	 */
 	public function run() {
 		$permissions = [
-			//MASTER > CUSTOMERS
-			4600 => [
-				'display_order' => 10,
-				'parent_id' => null,
-				'name' => 'cron_jobs',
-				'display_name' => 'CronJobs',
+
+			//Cron Jobs
+			[
+				'display_order' => 99,
+				'parent' => null,
+				'name' => 'cron-jobs',
+				'display_name' => 'Cron Jobs',
+				'operation' => 'add/update',
 			],
-			4601 => [
+			[
 				'display_order' => 1,
-				'parent_id' => 4600,
-				'name' => 'add-cron_job',
+				'parent' => 'cron-jobs',
+				'name' => 'add-cron-jobs',
 				'display_name' => 'Add',
+				'operation' => 'add/update',
 			],
-			4602 => [
+			[
 				'display_order' => 2,
-				'parent_id' => 4600,
-				'name' => 'edit-cron_job',
+				'parent' => 'cron-jobs',
+				'name' => 'edit-cron-jobs',
 				'display_name' => 'Edit',
+				'operation' => 'add/update',
 			],
-			4603 => [
+			[
 				'display_order' => 3,
-				'parent_id' => 4600,
-				'name' => 'delete-cron_job',
+				'parent' => 'cron-jobs',
+				'name' => 'delete-cron-jobs',
 				'display_name' => 'Delete',
+				'operation' => 'add/update',
+			],
+
+			//Cron Job Reports
+			[
+				'display_order' => 99,
+				'parent' => null,
+				'name' => 'cron-job-reports',
+				'display_name' => 'Cron Job Reports',
+				'operation' => 'add/update',
 			],
 
 		];
+		Permission::createFromArrays($permissions);
 
-		foreach ($permissions as $permission_id => $permsion) {
-			$permission = Permission::firstOrNew([
-				'id' => $permission_id,
-			]);
-			$permission->fill($permsion);
-			$permission->save();
-		}
 	}
 }
