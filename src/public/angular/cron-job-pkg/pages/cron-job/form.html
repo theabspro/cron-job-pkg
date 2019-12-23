@@ -5,11 +5,11 @@
         <div class="page-header-inner">
             <div class="page-header-content-left">
                 <div class="page-header-content button-block">
-                    <a href="#!/cron_job-pkg/cron_job/list" type="button" class="btn-back btn-img"><img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" /></a>
+                    <a href="#!/cron-job-pkg/cron-job/list" type="button" class="btn-back btn-img"><img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" /></a>
                 </div><!-- Page Header Content -->
                 <div class="page-header-content title-block">
                     <h1 class="title"><b>{{$ctrl.action}} CronJob</b></h1>
-                    <p class="subtitle"><a href="#!/cron_job-pkg/cron_job/list">CronJob List</a> / {{$ctrl.action}}</p>
+                    <p class="subtitle"><a href="#!/cron-job-pkg/cron-job/list">CronJob List</a> / {{$ctrl.action}}</p>
                 </div><!-- Page Header Content -->
             </div><!-- Page Header Content Left -->
         </div><!-- Page Header Inner -->
@@ -25,8 +25,8 @@
                             <!-- Filters -->
                             <div class="isotope-filters animated" data-animation="fadeInLeft" data-animation-delay="300">
                                 <ul class="nav nav-pills cndn-tabs">
-                                    <li class="active"><a class="filter active" data-target="#general-information" data-toggle="tab" aria-expanded="true">General Information</a></li>
-                                    <li><a data-target="#address-details" data-toggle="tab" aria-expanded="true" class="filter">Address Details</a></li>
+                                    <li class="active"><a class="filter active" data-target="#general-information" data-toggle="tab" aria-expanded="true">Cron Job Details</a></li>
+                                    <li><a data-target="#address-details" data-toggle="tab" aria-expanded="true" class="filter">Parameters</a></li>
                                 </ul>
                             </div><!-- Filters -->
                         </div><!-- Tab Header -->
@@ -39,51 +39,71 @@
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
-                                                <label>CronJob Code <sup class="mandatory">*</sup></label>
-                                                <input type="text" class="form-control required" ng-model="$ctrl.cron_job.code" name="code" placeholder="Enter CronJob Code" />
+                                                <label>Type <sup class="mandatory">*</sup></label>
+                                                <md-select ng-model="$ctrl.type_id" placeholder="Select Type" md-on-close="clearSearchType()" data-md-container-class="selectdemoSelectHeader">
+                                                    <md-select-header class="demo-select-header">
+                                                        <input ng-model="searchType" type="search" placeholder="Search for a Type.." class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                                    </md-select-header>
+                                                    <md-optgroup>
+                                                        <md-option ng-value="i.id" ng-repeat="i in $ctrl.cron_job_types | filter:searchType">{{i.name}}</md-option>
+                                                    </md-optgroup>
+                                                </md-select>
+                                                <input type="hidden" name="type_id" value="{{$ctrl.type_id}}" class="required">
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
-                                                <label>CronJob Name <sup class="mandatory">*</sup></label>
+                                                <label>Name <sup class="mandatory">*</sup></label>
                                                 <input type="text" class="form-control required" ng-model="$ctrl.cron_job.name" name="name" placeholder="Enter CronJob Name" />
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
-                                                <label>GST Number <sup class="mandatory">*</sup></label>
-                                                <input type="text" class="form-control required" ng-model="$ctrl.cron_job.gst_number" name="gst_number" placeholder="Enter GST Number" />
+                                                <label>Frequency <sup class="mandatory">*</sup></label>
+                                                <md-select ng-model="$ctrl.frequency_id" placeholder="Select Frequency" md-on-close="clearSearchType()" data-md-container-class="selectdemoSelectHeader">
+                                                    <md-select-header class="demo-select-header">
+                                                        <input ng-model="searchType" type="search" placeholder="Search for a Frequency.." class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                                    </md-select-header>
+                                                    <md-optgroup>
+                                                        <md-option ng-value="i.id" ng-repeat="i in $ctrl.frequencies | filter:searchType">{{i.name}}</md-option>
+                                                    </md-optgroup>
+                                                </md-select>
+                                                <input type="hidden" name="frequency_id" value="{{$ctrl.frequency_id}}" class="required">
+                                            </div><!-- Feild -->
+                                        </div><!-- Column -->
+                                        <div class="col-md-3" ng-if="$ctrl.frequency_id == 1360">
+                                            <div class="input-text form-group">
+                                                <label>Custom</label>
+                                                <input type="text" class="form-control" ng-model="$ctrl.cron_job.custom" name="custom" placeholder="Enter Custom" />
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
-                                                <label>Mobile Number</label>
-                                                <input type="text" class="form-control" ng-model="$ctrl.cron_job.mobile_no" name="mobile_no" placeholder="Enter Mobile Number" />
-                                            </div><!-- Feild -->
+                                                <label>Allow Overlapping <sup class="mandatory">*</sup></label>
+                                                <div class="tab-switch">
+                                                    <md-switch ng-model="$ctrl.allow_over_lapping" aria-label="Switch 1" ng-true-value="'No'" ng-false-value="'Yes'" class="md-warn type-2">
+                                                        {{ $ctrl.allow_over_lapping }}
+                                                    </md-switch>
+                                                    <input type="hidden" name="allow_overlapping" value="{{$ctrl.allow_over_lapping}}">
+                                                </div>
+                                            </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
-                                                <label>Email</label>
-                                                <input type="text" class="form-control" ng-model="$ctrl.cron_job.email" name="email" placeholder="Enter Email" />
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>CronJob Group</label>
-                                                <input type="text" class="form-control" ng-model="$ctrl.cron_job.cust_group" name="cust_group" placeholder="Enter CronJob Group" />
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>Dimension</label>
-                                                <input type="text" class="form-control" ng-model="$ctrl.cron_job.dimension" name="dimension" placeholder="Enter Dimension" />
-                                            </div><!-- Feild -->
+                                                <label>Run In Background <sup class="mandatory">*</sup></label>
+                                                <div class="tab-switch">
+                                                    <md-switch ng-model="$ctrl.run_in_background" aria-label="Switch 1" ng-true-value="'No'" ng-false-value="'Yes'" class="md-warn type-2">
+                                                        {{ $ctrl.run_in_background }}
+                                                    </md-switch>
+                                                    <input type="hidden" name="run_in_background" value="{{$ctrl.run_in_background}}">
+                                                </div>
+                                            </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
                                                 <label>Active Status <sup class="mandatory">*</sup></label>
                                                 <div class="tab-switch">
-                                                    <md-switch ng-model="$ctrl.switch_value" aria-label="Switch 1" ng-true-value="'Inactive'" ng-false-value="'Active'" class="md-warn">
+                                                    <md-switch ng-model="$ctrl.switch_value" aria-label="Switch 1" ng-true-value="'No'" ng-false-value="'Yes'" class="md-warn type-2">
                                                         {{ $ctrl.switch_value }}
                                                     </md-switch>
                                                     <input type="hidden" name="status" value="{{$ctrl.switch_value}}">
@@ -103,65 +123,40 @@
                             <div class="tab-pane fade" id="address-details" data-animation="fadeInUp" data-animation-delay="300">
                                 <div class="tab-pane-wrap">
                                     <div class="row">
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>Address Line 1 <sup class="mandatory">*</sup></label>
-                                                <input type="text" class="form-control required" ng-model="$ctrl.address.address_line1" name="address_line1" placeholder="Enter Address Line 1" />
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>Address Line 2</label>
-                                                <input type="text" class="form-control" ng-model="$ctrl.address.address_line2" name="address_line2" placeholder="Enter Address Line 2" />
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>Country <sup class="mandatory">*</sup></label>
-                                                <md-select ng-model="$ctrl.address.country_id" ng-change="onSelectedCountry($ctrl.address.country_id);$ctrl.address.state_id='';$ctrl.address.city_id=''" placeholder="Select Country" data-md-container-class="selectdemoSelectHeader">
-                                                    <md-select-header class="demo-select-header ng-hide">
-                                                        <input ng-model="searchCronJobGroup" type="search" placeholder="Search CronJob Group" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
-                                                    </md-select-header>
-                                                    <md-optgroup label="CronJob Group List">
-                                                        <md-option ng-value="country.id" ng-repeat="country in $ctrl.country_list | filter:searchTravel">{{country.name}}</md-option>
-                                                    </md-optgroup>
-                                                </md-select>
-                                                <input type="hidden" name="country_id" value='{{$ctrl.address.country_id}}' class="required">
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>State <sup class="mandatory">*</sup></label>
-                                                <md-select ng-model="$ctrl.address.state_id" ng-change="onSelectedState($ctrl.address.state_id);$ctrl.address.city_id=''" placeholder="Select State" data-md-container-class="selectdemoSelectHeader">
-                                                    <md-select-header class="demo-select-header ng-hide">
-                                                        <input ng-model="searchCronJobGroup" type="search" placeholder="Search CronJob Group" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
-                                                    </md-select-header>
-                                                    <md-optgroup label="">
-                                                        <md-option ng-value="state.id" ng-repeat="state in $ctrl.state_list | filter:searchTravel">{{state.name}}</md-option>
-                                                    </md-optgroup>
-                                                </md-select>
-                                                <input type="hidden" name="state_id" value='{{$ctrl.address.state_id}}' class="required">
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>City <sup class="mandatory">*</sup></label>
-                                                <md-select ng-model="$ctrl.address.city_id" placeholder="Select City" data-md-container-class="selectdemoSelectHeader">
-                                                    <md-select-header class="demo-select-header ng-hide">
-                                                        <input ng-model="searchCronJobGroup" type="search" placeholder="Search CronJob Group" class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
-                                                    </md-select-header>
-                                                    <md-optgroup label="">
-                                                        <md-option ng-value="city.id" ng-repeat="city in $ctrl.city_list | filter:searchTravel">{{city.name}}</md-option>
-                                                    </md-optgroup>
-                                                </md-select>
-                                                <input type="hidden" name="city_id" value='{{$ctrl.address.city_id}}' class="required">
-                                            </div><!-- Feild -->
-                                        </div><!-- Column -->
-                                        <div class="col-md-3">
-                                            <div class="input-text form-group">
-                                                <label>Pincode<sup class="mandatory">*</sup></label>
-                                                <input type="text" class="form-control required" ng-model="$ctrl.address.pincode" name="pincode" placeholder="Enter Pincode" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" />
-                                            </div><!-- Feild -->
+                                        <div class="table-responsive">
+                                                <table class="table table-form">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="width-230">Key<sup class="mandatory">*</sup></th>
+                                                            <th class="width-230">Value<sup class="mandatory">*</sup></th>
+                                                            <th class="width-60"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="coa_posting_type_list" ng-repeat="(index, parameter) in $ctrl.parameters">
+                                                        <input type="hidden" name="parameters[{{index}}][id]" value="{{parameter.id}}">
+                                                        <tr>
+                                                            <td>
+                                                                <input type="text" name="parameters[{{index}}][parameter]" ng-model="parameter.name" class="form-control coa_posting_type_name" placeholder="Enter Key" autocomplete="off" minlength="3" maxlength="191" required="required"/>
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" name="parameters[{{index}}][name]" ng-model="parameter.name" class="form-control coa_posting_type_name" placeholder="Enter Value" autocomplete="off" minlength="3" maxlength="191" required="required"/>
+                                                            </td>
+                                                            <td>
+                                                                <button class="btn-delete" ng-click="$ctrl.removeParameter(index, parameter.id)" type="button">
+                                                                    <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="3">
+                                                                <button type="button" class="btn btn-primary-light btn-square" ng-click="$ctrl.addNewParameter()">+ Add More</button>
+                                                            </td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div><!-- Table Responsive -->
                                         </div><!-- Column -->
                                         <div class="tab-pane-footer">
                                             <div class="row">

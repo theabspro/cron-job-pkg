@@ -2,8 +2,9 @@
 
 namespace Abs\CronJobPkg;
 use Abs\CronJobPkg\CronJob;
+use Abs\CronJobPkg\CronJobType;
 use App\Address;
-use App\Country;
+use App\Config;
 use App\Http\Controllers\Controller;
 use Auth;
 use Carbon\Carbon;
@@ -21,46 +22,53 @@ class CronJobController extends Controller {
 		$cron_job_list = CronJob::withTrashed()
 			->select(
 				'cron_jobs.id',
-				'cron_jobs.code',
-				'cron_jobs.name',
-				DB::raw('IF(cron_jobs.mobile_no IS NULL,"--",cron_jobs.mobile_no) as mobile_no'),
-				DB::raw('IF(cron_jobs.email IS NULL,"--",cron_jobs.email) as email'),
-				DB::raw('IF(cron_jobs.deleted_at IS NULL,"Active","Inactive") as status')
+				'cron_job_types.name as type',
+				'cron_job_types.description',
+				'configs.name as frequency',
+				DB::raw('IF(cron_jobs.name IS NULL,"--",cron_jobs.name) as name'),
+				DB::raw('IF(cron_jobs.allow_overlapping = 0,"No","Yes") as allow_overlapping'),
+				DB::raw('IF(cron_jobs.run_in_background = 0,"No","Yes") as run_in_background')
 			)
+			->leftJoin('cron_job_types', 'cron_job_types.id', 'cron_jobs.type_id')
+			->leftJoin('configs', 'configs.id', 'cron_jobs.frequency_id')
 			->where('cron_jobs.company_id', Auth::user()->company_id)
-			->where(function ($query) use ($request) {
-				if (!empty($request->cron_job_code)) {
-					$query->where('cron_jobs.code', 'LIKE', '%' . $request->cron_job_code . '%');
-				}
-			})
-			->where(function ($query) use ($request) {
-				if (!empty($request->cron_job_name)) {
-					$query->where('cron_jobs.name', 'LIKE', '%' . $request->cron_job_name . '%');
-				}
-			})
-			->where(function ($query) use ($request) {
-				if (!empty($request->mobile_no)) {
-					$query->where('cron_jobs.mobile_no', 'LIKE', '%' . $request->mobile_no . '%');
-				}
-			})
-			->where(function ($query) use ($request) {
-				if (!empty($request->email)) {
-					$query->where('cron_jobs.email', 'LIKE', '%' . $request->email . '%');
-				}
-			})
+		// ->where(function ($query) use ($request) {
+		// 	if (!empty($request->cron_job_code)) {
+		// 		$query->where('cron_jobs.code', 'LIKE', '%' . $request->cron_job_code . '%');
+		// 	}
+		// })
+		// ->where(function ($query) use ($request) {
+		// 	if (!empty($request->cron_job_name)) {
+		// 		$query->where('cron_jobs.name', 'LIKE', '%' . $request->cron_job_name . '%');
+		// 	}
+		// })
+		// ->where(function ($query) use ($request) {
+		// 	if (!empty($request->mobile_no)) {
+		// 		$query->where('cron_jobs.mobile_no', 'LIKE', '%' . $request->mobile_no . '%');
+		// 	}
+		// })
+		// ->where(function ($query) use ($request) {
+		// 	if (!empty($request->email)) {
+		// 		$query->where('cron_jobs.email', 'LIKE', '%' . $request->email . '%');
+		// 	}
+		// })
 			->orderby('cron_jobs.id', 'desc');
 
 		return Datatables::of($cron_job_list)
-			->addColumn('code', function ($cron_job_list) {
-				$status = $cron_job_list->status == 'Active' ? 'green' : 'red';
-				return '<span class="status-indicator ' . $status . '"></span>' . $cron_job_list->code;
-			})
+		// ->addColumn('type', function ($cron_job_list) {
+		// 	$status = $cron_job_list->status == 'Active' ? 'green' : 'red';
+		// 	return '<span class="status-indicator ' . $status . '"></span>' . $cron_job_list->code;
+		// })
 			->addColumn('action', function ($cron_job_list) {
 				$edit_img = asset('public/theme/img/table/cndn/edit.svg');
+				$view_img = asset('public/theme/img/table/cndn/view.svg');
 				$delete_img = asset('public/theme/img/table/cndn/delete.svg');
 				return '
 					<a href="#!/cron_job-pkg/cron_job/edit/' . $cron_job_list->id . '">
-						<img src="' . $edit_img . '" alt="View" class="img-responsive">
+						<img src="' . $edit_img . '" alt="Edit" class="img-responsive">
+					</a>
+					<a href="#!/cron_job-pkg/cron_job/view/' . $cron_job_list->id . '">
+						<img src="' . $view_img . '" alt="View" class="img-responsive">
 					</a>
 					<a href="javascript:;" data-toggle="modal" data-target="#delete_cron_job"
 					onclick="angular.element(this).scope().deleteCronJob(' . $cron_job_list->id . ')" dusk = "delete-btn" title="Delete">
@@ -74,19 +82,14 @@ class CronJobController extends Controller {
 	public function getCronJobFormData($id = NULL) {
 		if (!$id) {
 			$cron_job = new CronJob;
-			$address = new Address;
 			$action = 'Add';
 		} else {
 			$cron_job = CronJob::withTrashed()->find($id);
-			$address = Address::where('address_of_id', 24)->where('entity_id', $id)->first();
-			if (!$address) {
-				$address = new Address;
-			}
 			$action = 'Edit';
 		}
-		$this->data['country_list'] = $country_list = Collect(Country::select('id', 'name')->get())->prepend(['id' => '', 'name' => 'Select Country']);
+		$this->data['cron_job_types'] = Collect(CronJobType::select('id', 'name')->get())->prepend(['id' => '', 'name' => 'Select Type']);
+		$this->data['frequencies'] = Collect(Config::select('id', 'name')->where('config_type_id', 23)->get())->prepend(['id' => '', 'name' => 'Select Frequency']);
 		$this->data['cron_job'] = $cron_job;
-		$this->data['address'] = $address;
 		$this->data['action'] = $action;
 
 		return response()->json($this->data);

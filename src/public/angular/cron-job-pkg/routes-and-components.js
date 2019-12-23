@@ -14,6 +14,10 @@ app.config(['$routeProvider', function($routeProvider) {
         template: '<cron-job-form></cron-job-form>',
         title: 'Edit Cron Job',
     }).
+    when('/cron-job-pkg/cron-job/view/:id', {
+        template: '<cron-job-view></cron-job-view>',
+        title: 'View Cron Job',
+    }).
 
     //CRON JOB REPORT
     when('/cron-job-pkg/cron-job-report/list', {
@@ -25,7 +29,7 @@ app.config(['$routeProvider', function($routeProvider) {
 app.component('cronJobList', {
     templateUrl: cron_job_list_template_url,
     controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location) {
-        $scope.loading = true;
+        // $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
         var table_scroll;
@@ -64,19 +68,21 @@ app.component('cronJobList', {
                 type: "GET",
                 dataType: "json",
                 data: function(d) {
-                    d.cron_job_code = $('#cron_job_code').val();
-                    d.cron_job_name = $('#cron_job_name').val();
-                    d.mobile_no = $('#mobile_no').val();
-                    d.email = $('#email').val();
+                    // d.cron_job_code = $('#cron_job_code').val();
+                    // d.cron_job_name = $('#cron_job_name').val();
+                    // d.mobile_no = $('#mobile_no').val();
+                    // d.email = $('#email').val();
                 },
             },
 
             columns: [
                 { data: 'action', class: 'action', name: 'action', searchable: false },
-                { data: 'code', name: 'cron_jobs.code' },
-                { data: 'name', name: 'cron_jobs.name' },
-                { data: 'mobile_no', name: 'cron_jobs.mobile_no' },
-                { data: 'email', name: 'cron_jobs.email' },
+                { data: 'type', name: 'cron_job_types.name', searchable: true },
+                { data: 'description', name: 'cron_jobs.description', searchable: true },
+                { data: 'name', name: 'cron_jobs.name', searchable: true },
+                { data: 'frequency', name: 'configs.name', searchable: true },
+                { data: 'allow_overlapping', name: 'cron_jobs.allow_overlapping', searchable: false },
+                { data: 'run_in_background', name: 'cron_jobs.run_in_background', searchable: false },
             ],
             "infoCallback": function(settings, start, end, max, total, pre) {
                 $('#table_info').html(total)
@@ -99,49 +105,49 @@ app.component('cronJobList', {
         });
 
         //DELETE
-        $scope.deleteCronJob = function($id) {
-            $('#cron_job_id').val($id);
-        }
-        $scope.deleteConfirm = function() {
-            $id = $('#cron_job_id').val();
-            $http.get(
-                cron_job_delete_data_url + '/' + $id,
-            ).then(function(response) {
-                if (response.data.success) {
-                    $noty = new Noty({
-                        type: 'success',
-                        layout: 'topRight',
-                        text: 'CronJob Deleted Successfully',
-                    }).show();
-                    setTimeout(function() {
-                        $noty.close();
-                    }, 3000);
-                    $('#cron_jobs_list').DataTable().ajax.reload(function(json) {});
-                    $location.path('/cron_job-pkg/cron_job/list');
-                }
-            });
-        }
+        // $scope.deleteCronJob = function($id) {
+        //     $('#cron_job_id').val($id);
+        // }
+        // $scope.deleteConfirm = function() {
+        //     $id = $('#cron_job_id').val();
+        //     $http.get(
+        //         cron_job_delete_data_url + '/' + $id,
+        //     ).then(function(response) {
+        //         if (response.data.success) {
+        //             $noty = new Noty({
+        //                 type: 'success',
+        //                 layout: 'topRight',
+        //                 text: 'CronJob Deleted Successfully',
+        //             }).show();
+        //             setTimeout(function() {
+        //                 $noty.close();
+        //             }, 3000);
+        //             $('#cron_jobs_list').DataTable().ajax.reload(function(json) {});
+        //             $location.path('/cron-job-pkg/cron_job/list');
+        //         }
+        //     });
+        // }
 
         //FOR FILTER
-        $('#cron_job_code').on('keyup', function() {
-            dataTables.fnFilter();
-        });
-        $('#cron_job_name').on('keyup', function() {
-            dataTables.fnFilter();
-        });
-        $('#mobile_no').on('keyup', function() {
-            dataTables.fnFilter();
-        });
-        $('#email').on('keyup', function() {
-            dataTables.fnFilter();
-        });
-        $scope.reset_filter = function() {
-            $("#cron_job_name").val('');
-            $("#cron_job_code").val('');
-            $("#mobile_no").val('');
-            $("#email").val('');
-            dataTables.fnFilter();
-        }
+        // $('#cron_job_code').on('keyup', function() {
+        //     dataTables.fnFilter();
+        // });
+        // $('#cron_job_name').on('keyup', function() {
+        //     dataTables.fnFilter();
+        // });
+        // $('#mobile_no').on('keyup', function() {
+        //     dataTables.fnFilter();
+        // });
+        // $('#email').on('keyup', function() {
+        //     dataTables.fnFilter();
+        // });
+        // $scope.reset_filter = function() {
+        //     $("#cron_job_name").val('');
+        //     $("#cron_job_code").val('');
+        //     $("#mobile_no").val('');
+        //     $("#email").val('');
+        //     dataTables.fnFilter();
+        // }
 
         $rootScope.loading = false;
     }
@@ -160,22 +166,30 @@ app.component('cronJobForm', {
         ).then(function(response) {
             // console.log(response);
             self.cron_job = response.data.cron_job;
-            self.address = response.data.address;
-            self.country_list = response.data.country_list;
+            self.cron_job_types = response.data.cron_job_types;
+            self.frequencies = response.data.frequencies;
             self.action = response.data.action;
             $rootScope.loading = false;
             if (self.action == 'Edit') {
-                $scope.onSelectedCountry(self.address.country_id);
-                $scope.onSelectedState(self.address.state_id);
-                if (self.cron_job.deleted_at) {
+                if (self.cron_job.deleted_at == null) {
                     self.switch_value = 'Inactive';
                 } else {
                     self.switch_value = 'Active';
                 }
+                if(self.cron_job.allow_over_lapping == '1' || self.cron_job.allow_over_lapping == 1) {
+                    self.allow_over_lapping = 'Yes';
+                } else {
+                    self.allow_over_lapping = 'No';
+                }
+                if(self.cron_job.run_in_background == '1' || self.cron_job.run_in_background == 1) {
+                    self.run_in_background   = 'Yes';
+                } else {
+                    self.run_in_background   = 'No';
+                }
             } else {
                 self.switch_value = 'Active';
-                self.state_list = [{ 'id': '', 'name': 'Select State' }];
-                self.city_list = [{ 'id': '', 'name': 'Select City' }];
+                self.allow_over_lapping = 'No';
+                self.run_in_background   = 'No';
             }
         });
 
@@ -191,96 +205,30 @@ app.component('cronJobForm', {
         $('.btn-pills').on("click", function() {
             tabPaneFooter();
         });
-        $scope.btnNxt = function() {}
-        $scope.prev = function() {}
-
-        //SELECT STATE BASED COUNTRY
-        $scope.onSelectedCountry = function(id) {
-            cron_job_get_state_by_country = vendor_get_state_by_country;
-            $http.post(
-                cron_job_get_state_by_country, { 'country_id': id }
-            ).then(function(response) {
-                // console.log(response);
-                self.state_list = response.data.state_list;
-            });
-        }
-
-        //SELECT CITY BASED STATE
-        $scope.onSelectedState = function(id) {
-            cron_job_get_city_by_state = vendor_get_city_by_state
-            $http.post(
-                cron_job_get_city_by_state, { 'state_id': id }
-            ).then(function(response) {
-                // console.log(response);
-                self.city_list = response.data.city_list;
-            });
-        }
+        // $scope.btnNxt = function() {}
+        // $scope.prev = function() {}
 
         var form_id = '#form';
         var v = jQuery(form_id).validate({
             ignore: '',
             rules: {
-                'code': {
+                'type_id': {
                     required: true,
-                    minlength: 3,
-                    maxlength: 255,
                 },
                 'name': {
                     required: true,
-                    minlength: 3,
-                    maxlength: 255,
                 },
-                'cust_group': {
-                    maxlength: 100,
-                },
-                'gst_number': {
+                'frequency_id': {
                     required: true,
-                    maxlength: 100,
                 },
-                'dimension': {
-                    maxlength: 50,
-                },
-                'address_line1': {
-                    minlength: 3,
-                    maxlength: 255,
-                },
-                'address_line2': {
-                    minlength: 3,
-                    maxlength: 255,
-                },
-                'pincode': {
+                'allow_overlapping': {
                     required: true,
-                    minlength: 6,
-                    maxlength: 6,
                 },
-            },
-            messages: {
-                'code': {
-                    maxlength: 'Maximum of 255 charaters',
+                'run_in_background': {
+                    required: true,
                 },
-                'name': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'cust_group': {
-                    maxlength: 'Maximum of 100 charaters',
-                },
-                'dimension': {
-                    maxlength: 'Maximum of 50 charaters',
-                },
-                'gst_number': {
-                    maxlength: 'Maximum of 25 charaters',
-                },
-                'email': {
-                    maxlength: 'Maximum of 100 charaters',
-                },
-                'address_line1': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'address_line2': {
-                    maxlength: 'Maximum of 255 charaters',
-                },
-                'pincode': {
-                    maxlength: 'Maximum of 6 charaters',
+                'status': {
+                    required: true,
                 },
             },
             invalidHandler: function(event, validator) {
@@ -313,7 +261,7 @@ app.component('cronJobForm', {
                             setTimeout(function() {
                                 $noty.close();
                             }, 3000);
-                            $location.path('/cron_job-pkg/cron_job/list');
+                            $location.path('/cron-job-pkg/cron_job/list');
                             $scope.$apply();
                         } else {
                             if (!res.success == true) {
@@ -332,7 +280,7 @@ app.component('cronJobForm', {
                                 }, 3000);
                             } else {
                                 $('#submit').button('reset');
-                                $location.path('/cron_job-pkg/cron_job/list');
+                                $location.path('/cron-job-pkg/cron_job/list');
                                 $scope.$apply();
                             }
                         }
