@@ -13,13 +13,13 @@ class CronJob extends Model {
 	use SoftDeletes;
 	protected $table = 'cron_jobs';
 	protected $fillable = [
-		'code',
-		'name',
-		'cust_group',
-		'dimension',
-		'mobile_no',
-		'email',
 		'company_id',
+		'type_id',
+		'name',
+		'frequency_id',
+		'frequency_command',
+		'allow_overlapping',
+		'run_in_background',
 	];
 
 	public function type() {
@@ -28,6 +28,10 @@ class CronJob extends Model {
 
 	public function frequency() {
 		return $this->belongsTo('App\Config', 'frequency_id');
+	}
+
+	public function cronJobParameters() {
+		return $this->hasMany('Abs\CronJobPkg\CronJobParameter', 'cron_job_id', 'id');
 	}
 
 	public static function createFromObject($record_data) {

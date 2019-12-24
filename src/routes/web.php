@@ -5,5 +5,5 @@ Route::group(['namespace' => 'Abs\CronJobPkg', 'middleware' => ['web', 'auth'], 
 	Route::get('/cron-job/get-form-data/{id?}', 'CronJobController@getCronJobFormData')->name('getCronJobFormData');
 	Route::post('/cron-job/save', 'CronJobController@saveCronJob')->name('saveCronJob');
 	Route::get('/cron-job/delete/{id}', 'CronJobController@deleteCronJob')->name('deleteCronJob');
-
+	Route::get('/cron-job/view/{id}', 'CronJobController@viewCronJob')->name('viewCronJob');
 });

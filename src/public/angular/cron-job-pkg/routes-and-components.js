@@ -105,28 +105,30 @@ app.component('cronJobList', {
         });
 
         //DELETE
-        // $scope.deleteCronJob = function($id) {
-        //     $('#cron_job_id').val($id);
-        // }
-        // $scope.deleteConfirm = function() {
-        //     $id = $('#cron_job_id').val();
-        //     $http.get(
-        //         cron_job_delete_data_url + '/' + $id,
-        //     ).then(function(response) {
-        //         if (response.data.success) {
-        //             $noty = new Noty({
-        //                 type: 'success',
-        //                 layout: 'topRight',
-        //                 text: 'CronJob Deleted Successfully',
-        //             }).show();
-        //             setTimeout(function() {
-        //                 $noty.close();
-        //             }, 3000);
-        //             $('#cron_jobs_list').DataTable().ajax.reload(function(json) {});
-        //             $location.path('/cron-job-pkg/cron_job/list');
-        //         }
-        //     });
-        // }
+        $scope.deleteCronJob = function($id) {
+            $('#cron_job_id').val($id);
+        }
+        $scope.deleteConfirm = function() {
+            $id = $('#cron_job_id').val();
+            $http.get(
+                cron_job_delete_data_url + '/' + $id,
+            ).then(function(response) {
+                if (response.data.success) {
+                    $noty = new Noty({
+                        type: 'success',
+                        layout: 'topRight',
+                        text: 'CronJob Deleted Successfully',
+                    }).show();
+                    setTimeout(function() {
+                        $noty.close();
+                    }, 3000);
+                    $('#cron_jobs_list').DataTable().ajax.reload();
+                    //$scope.$apply();
+                    // $('#cron_jobs_list').DataTable().ajax.reload(function(json) {});
+                    // $location.path('/cron-job-pkg/cron-job/list');
+                }
+            });
+        }
 
         //FOR FILTER
         // $('#cron_job_code').on('keyup', function() {
@@ -164,22 +166,23 @@ app.component('cronJobForm', {
         $http.get(
             get_form_data_url
         ).then(function(response) {
-            // console.log(response);
+            console.log(response.data);
             self.cron_job = response.data.cron_job;
             self.cron_job_types = response.data.cron_job_types;
             self.frequencies = response.data.frequencies;
             self.action = response.data.action;
+            self.cron_job_parameters_removal_ids = [];
             $rootScope.loading = false;
             if (self.action == 'Edit') {
                 if (self.cron_job.deleted_at == null) {
-                    self.switch_value = 'Inactive';
-                } else {
                     self.switch_value = 'Active';
-                }
-                if(self.cron_job.allow_over_lapping == '1' || self.cron_job.allow_over_lapping == 1) {
-                    self.allow_over_lapping = 'Yes';
                 } else {
-                    self.allow_over_lapping = 'No';
+                    self.switch_value = 'Inactive';
+                }
+                if(self.cron_job.allow_overlapping == '1' || self.cron_job.allow_overlapping == 1) {
+                    self.allow_overlapping = 'Yes';
+                } else {
+                    self.allow_overlapping = 'No';
                 }
                 if(self.cron_job.run_in_background == '1' || self.cron_job.run_in_background == 1) {
                     self.run_in_background   = 'Yes';
@@ -188,7 +191,7 @@ app.component('cronJobForm', {
                 }
             } else {
                 self.switch_value = 'Active';
-                self.allow_over_lapping = 'No';
+                self.allow_overlapping = 'No';
                 self.run_in_background   = 'No';
             }
         });
@@ -205,10 +208,31 @@ app.component('cronJobForm', {
         $('.btn-pills').on("click", function() {
             tabPaneFooter();
         });
-        // $scope.btnNxt = function() {}
-        // $scope.prev = function() {}
+
+        self.addNewParameter = function() {
+            self.cron_job.cron_job_parameters.push({
+                key: '',
+                value:'',
+            });
+        }
+
+        self.removeParameter = function(index, cron_job_parameter_id) {
+            if(cron_job_parameter_id) {
+                self.cron_job_parameters_removal_ids.push(cron_job_parameter_id);
+                $('#cron_job_parameters_removal_ids').val(JSON.stringify(self.cron_job_parameters_removal_ids));
+            }
+            self.cron_job.cron_job_parameters.splice(index, 1);
+        }
 
         var form_id = '#form';
+        $.validator.addClassRules({
+            cron_job_parameter: {
+                required:true,
+            },
+            cron_job_custom: {
+                required:true,
+            },
+        });
         var v = jQuery(form_id).validate({
             ignore: '',
             rules: {
@@ -256,12 +280,12 @@ app.component('cronJobForm', {
                             $noty = new Noty({
                                 type: 'success',
                                 layout: 'topRight',
-                                text: res.message,
+                                text: 'CronJob Details ' + res.comes_from + ' Successfully',
                             }).show();
                             setTimeout(function() {
                                 $noty.close();
                             }, 3000);
-                            $location.path('/cron-job-pkg/cron_job/list');
+                            $location.path('/cron-job-pkg/cron-job/list');
                             $scope.$apply();
                         } else {
                             if (!res.success == true) {
@@ -280,7 +304,7 @@ app.component('cronJobForm', {
                                 }, 3000);
                             } else {
                                 $('#submit').button('reset');
-                                $location.path('/cron-job-pkg/cron_job/list');
+                                $location.path('/cron-job-pkg/cron-job/list');
                                 $scope.$apply();
                             }
                         }

@@ -2,8 +2,8 @@
 
 namespace Abs\CronJobPkg;
 use Abs\CronJobPkg\CronJob;
+use Abs\CronJobPkg\CronJobParameter;
 use Abs\CronJobPkg\CronJobType;
-use App\Address;
 use App\Config;
 use App\Http\Controllers\Controller;
 use Auth;
@@ -27,7 +27,8 @@ class CronJobController extends Controller {
 				'configs.name as frequency',
 				DB::raw('IF(cron_jobs.name IS NULL,"--",cron_jobs.name) as name'),
 				DB::raw('IF(cron_jobs.allow_overlapping = 0,"No","Yes") as allow_overlapping'),
-				DB::raw('IF(cron_jobs.run_in_background = 0,"No","Yes") as run_in_background')
+				DB::raw('IF(cron_jobs.run_in_background = 0,"No","Yes") as run_in_background'),
+				DB::raw('IF((cron_jobs.deleted_at) IS NULL,"Active","Inactive") as status')
 			)
 			->leftJoin('cron_job_types', 'cron_job_types.id', 'cron_jobs.type_id')
 			->leftJoin('configs', 'configs.id', 'cron_jobs.frequency_id')
@@ -55,26 +56,23 @@ class CronJobController extends Controller {
 			->orderby('cron_jobs.id', 'desc');
 
 		return Datatables::of($cron_job_list)
-		// ->addColumn('type', function ($cron_job_list) {
-		// 	$status = $cron_job_list->status == 'Active' ? 'green' : 'red';
-		// 	return '<span class="status-indicator ' . $status . '"></span>' . $cron_job_list->code;
-		// })
+			->addColumn('name', function ($cron_job_list) {
+				$status = $cron_job_list->status == 'Active' ? 'green' : 'red';
+				return '<span class="status-indicator ' . $status . '"></span>' . $cron_job_list->name;
+			})
 			->addColumn('action', function ($cron_job_list) {
 				$edit_img = asset('public/theme/img/table/cndn/edit.svg');
 				$view_img = asset('public/theme/img/table/cndn/view.svg');
 				$delete_img = asset('public/theme/img/table/cndn/delete.svg');
 				return '
-					<a href="#!/cron_job-pkg/cron_job/edit/' . $cron_job_list->id . '">
+					<a href="#!/cron-job-pkg/cron-job/edit/' . $cron_job_list->id . '">
 						<img src="' . $edit_img . '" alt="Edit" class="img-responsive">
 					</a>
-					<a href="#!/cron_job-pkg/cron_job/view/' . $cron_job_list->id . '">
+					<a href="#!/cron-job-pkg/cron-job/view/' . $cron_job_list->id . '">
 						<img src="' . $view_img . '" alt="View" class="img-responsive">
 					</a>
 					<a href="javascript:;" data-toggle="modal" data-target="#delete_cron_job"
-					onclick="angular.element(this).scope().deleteCronJob(' . $cron_job_list->id . ')" dusk = "delete-btn" title="Delete">
-					<img src="' . $delete_img . '" alt="delete" class="img-responsive">
-					</a>
-					';
+					onclick="angular.element(this).scope().deleteCronJob(' . $cron_job_list->id . ')" dusk = "delete-btn" title="Delete"><img src="' . $delete_img . '" alt="delete" class="img-responsive"></a>';
 			})
 			->make(true);
 	}
@@ -82,9 +80,13 @@ class CronJobController extends Controller {
 	public function getCronJobFormData($id = NULL) {
 		if (!$id) {
 			$cron_job = new CronJob;
+			$cron_job->cron_job_parameters = [];
 			$action = 'Add';
 		} else {
-			$cron_job = CronJob::withTrashed()->find($id);
+			$cron_job = CronJob::withTrashed()->where('id', $id)->with([
+				'cronJobParameters',
+			])
+				->first();
 			$action = 'Edit';
 		}
 		$this->data['cron_job_types'] = Collect(CronJobType::select('id', 'name')->get())->prepend(['id' => '', 'name' => 'Select Type']);
@@ -99,36 +101,44 @@ class CronJobController extends Controller {
 		// dd($request->all());
 		try {
 			$error_messages = [
-				'code.required' => 'CronJob Code is Required',
-				'code.max' => 'Maximum 255 Characters',
-				'code.min' => 'Minimum 3 Characters',
+				'type_id.required' => 'CronJob Type is Required',
 				'name.required' => 'CronJob Name is Required',
-				'name.max' => 'Maximum 255 Characters',
-				'name.min' => 'Minimum 3 Characters',
-				'gst_number.required' => 'GST Number is Required',
-				'gst_number.max' => 'Maximum 191 Numbers',
-				'mobile_no.max' => 'Maximum 25 Numbers',
-				// 'email.required' => 'Email is Required',
-				'address_line1.required' => 'Address Line 1 is Required',
-				'address_line1.max' => 'Maximum 255 Characters',
-				'address_line1.min' => 'Minimum 3 Characters',
-				'address_line2.max' => 'Maximum 255 Characters',
-				'pincode.required' => 'Pincode is Required',
-				'pincode.max' => 'Maximum 6 Characters',
-				'pincode.min' => 'Minimum 6 Characters',
+				'name.unique' => 'CronJob Name is already taken',
+				'frequency_id.required' => 'CronJob Frequency is Required',
+				'allow_overlapping.required' => 'Allow Over lapping is Required',
+				'run_in_background.required' => 'Run in Background is Required',
 			];
 			$validator = Validator::make($request->all(), [
-				'code' => 'required|max:255|min:3',
-				'name' => 'required|max:255|min:3',
-				'gst_number' => 'required|max:191',
-				'mobile_no' => 'nullable|max:25',
-				// 'email' => 'nullable',
-				'address_line1' => 'required|max:255|min:3',
-				'address_line2' => 'max:255',
-				'pincode' => 'required|max:6|min:6',
+				'type_id' => 'required',
+				'name' => [
+					'unique:cron_jobs,name,' . $request->id . ',id,company_id,' . Auth::user()->company_id,
+					'required',
+				],
+				'frequency_id' => 'required',
+				'allow_overlapping' => 'required',
+				'run_in_background' => 'required',
 			], $error_messages);
 			if ($validator->fails()) {
 				return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+			}
+
+			//VALIDATE CRON-JOB-PARAMETERS
+			if (isset($request->cron_job_parameters) && !empty($request->cron_job_parameters)) {
+				$error_messages_1 = [
+					'key.required' => 'Parameter Key is required',
+					'value.required' => 'Parameter Value is required',
+				];
+
+				foreach ($request->cron_job_parameters as $cron_job_parameter_key => $cron_job_parameter) {
+					$validator_1 = Validator::make($cron_job_parameter, [
+						'key' => 'required',
+						'value' => 'required',
+					], $error_messages_1);
+
+					if ($validator_1->fails()) {
+						return response()->json(['success' => false, 'errors' => $validator_1->errors()->all()]);
+					}
+				}
 			}
 
 			DB::beginTransaction();
@@ -137,52 +147,95 @@ class CronJobController extends Controller {
 				$cron_job->created_by_id = Auth::user()->id;
 				$cron_job->created_at = Carbon::now();
 				$cron_job->updated_at = NULL;
-				$address = new Address;
+				$msg = "Saved";
 			} else {
 				$cron_job = CronJob::withTrashed()->find($request->id);
 				$cron_job->updated_by_id = Auth::user()->id;
 				$cron_job->updated_at = Carbon::now();
-				$address = Address::where('address_of_id', 24)->where('entity_id', $request->id)->first();
+				$msg = "Updated";
 			}
 			$cron_job->fill($request->all());
+			// $cron_job->parameters = json_encode($request->parameters);
 			$cron_job->company_id = Auth::user()->company_id;
-			if ($request->status == 'Inactive') {
-				$cron_job->deleted_at = Carbon::now();
-				$cron_job->deleted_by_id = Auth::user()->id;
+			if ($request->frequency_id == 1360) {
+				//Custom
+				$cron_job->frequency_command = $request->frequency_command;
 			} else {
+				$cron_job->frequency_command = NULL;
+			}
+
+			if ($request->allow_overlapping == 'Yes') {
+				$cron_job->allow_overlapping = 1;
+			} else {
+				$cron_job->allow_overlapping = 0;
+			}
+
+			if ($request->run_in_background == 'Yes') {
+				$cron_job->run_in_background = 1;
+			} else {
+				$cron_job->run_in_background = 0;
+			}
+
+			if ($request->status == 'Active') {
 				$cron_job->deleted_by_id = NULL;
 				$cron_job->deleted_at = NULL;
+			} else {
+				$cron_job->deleted_at = Carbon::now();
+				$cron_job->deleted_by_id = Auth::user()->id;
 			}
-			$cron_job->gst_number = $request->gst_number;
 			$cron_job->save();
 
-			if (!$address) {
-				$address = new Address;
+			//DELETE CRON-JOB-PARAMETERS
+			if (!empty($request->cron_job_parameters_removal_ids)) {
+				$cron_job_parameters_removal_ids = json_decode($request->cron_job_parameters_removal_ids, true);
+				CronJobParameter::withTrashed()->whereIn('id', $cron_job_parameters_removal_ids)->forcedelete();
 			}
-			$address->fill($request->all());
-			$address->company_id = Auth::user()->company_id;
-			$address->address_of_id = 24;
-			$address->entity_id = $cron_job->id;
-			$address->address_type_id = 40;
-			$address->name = 'Primary Address';
-			$address->save();
+
+			if (isset($request->cron_job_parameters) && !empty($request->cron_job_parameters)) {
+				foreach ($request->cron_job_parameters as $key => $cron_job_parameter) {
+					$cron_job_parameter_save = CronJobParameter::withTrashed()->firstOrNew(['id' => $cron_job_parameter['id']]);
+					$cron_job_parameter_save->fill($cron_job_parameter);
+					$cron_job_parameter_save->cron_job_id = $cron_job->id;
+					if (empty($cron_job_parameter['id'])) {
+						$cron_job_parameter_save->created_by_id = Auth::user()->id;
+						$cron_job_parameter_save->updated_at = NULL;
+					} else {
+						$cron_job_parameter_save->updated_by_id = Auth::user()->id;
+						$cron_job_parameter_save->updated_at = Carbon::now();
+					}
+					$cron_job_parameter_save->save();
+				}
+			}
 
 			DB::commit();
-			if (!($request->id)) {
-				return response()->json(['success' => true, 'message' => ['CronJob Details Added Successfully']]);
-			} else {
-				return response()->json(['success' => true, 'message' => ['CronJob Details Updated Successfully']]);
-			}
+			return response()->json(['success' => true, 'comes_from' => $msg]);
 		} catch (Exceprion $e) {
 			DB::rollBack();
 			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
 		}
 	}
+
+	public function viewCronJob($id) {
+		$this->data['cron_job'] = CronJob::withTrashed()->where('id', $id)->with([
+			'cronJobParameters',
+		])
+			->first();
+		$this->data['action'] = 'View';
+		$this->data['cron_job_types'] = Collect(CronJobType::select('id', 'name')->get())->prepend(['id' => '', 'name' => 'Select Type']);
+		$this->data['frequencies'] = Collect(Config::select('id', 'name')->where('config_type_id', 23)->get())->prepend(['id' => '', 'name' => 'Select Frequency']);
+
+		return response()->json($this->data);
+	}
+
 	public function deleteCronJob($id) {
-		$delete_status = CronJob::withTrashed()->where('id', $id)->forceDelete();
-		if ($delete_status) {
-			$address_delete = Address::where('address_of_id', 24)->where('entity_id', $id)->forceDelete();
+		DB::beginTransaction();
+		try {
+			$delete_status = CronJob::withTrashed()->where('id', $id)->forceDelete();
+			DB::commit();
 			return response()->json(['success' => true]);
+		} catch (Exception $e) {
+			DB::rollBack();
+			return response()->json(['success' => false, 'errors' => ['Exception Error' => $e->getMessage()]]);
 		}
 	}
 }

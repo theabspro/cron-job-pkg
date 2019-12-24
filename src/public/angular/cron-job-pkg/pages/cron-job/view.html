@@ -16,7 +16,7 @@
     </div><!-- Page Header -->
     <!-- Page Main Content -->
     <div class="page-main-content form-content type2">
-        <form id="form" autocomplete="off">
+        <!-- <form id="form" autocomplete="off"> -->
             <input type="hidden" name="id" value="{{$ctrl.cron_job.id}}">
             <div class="page-tab-form pb-70">
                 <div class="tab-form-wrap">
@@ -129,7 +129,7 @@
                                                         <tr>
                                                             <th class="width-230">Key<sup class="mandatory">*</sup></th>
                                                             <th class="width-230">Value<sup class="mandatory">*</sup></th>
-                                                            <th class="width-60"></th>
+                                                            <!-- <th class="width-60"></th> -->
                                                         </tr>
                                                     </thead>
                                                     <tbody class="cron_job_parameter_list" ng-repeat="(index, cron_job_parameter) in $ctrl.cron_job.cron_job_parameters">
@@ -142,17 +142,17 @@
                                                             <td>
                                                                 <input type="text" name="cron_job_parameters[{{index}}][value]" ng-model="cron_job_parameter.value" class="form-control cron_job_parameter" placeholder="Enter Value" autocomplete="off" minlength="3" maxlength="255" required="required"/>
                                                             </td>
-                                                            <td>
+                                                            <!--<td>
                                                                 <button class="btn-delete" ng-click="$ctrl.removeParameter(index, cron_job_parameter.id)" type="button">
                                                                     <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
                                                                 </button>
-                                                            </td>
+                                                            </td> -->
                                                         </tr>
                                                     </tbody>
                                                     <tfoot>
                                                         <tr>
-                                                            <td colspan="3">
-                                                                <button type="button" class="btn btn-primary-light btn-square" ng-click="$ctrl.addNewParameter()">+ Add More</button>
+                                                            <td colspan="2">
+                                                                <!-- <button type="button" class="btn btn-primary-light btn-square" ng-click="$ctrl.addNewParameter()">+ Add More</button> -->
                                                             </td>
                                                         </tr>
                                                     </tfoot>
@@ -163,7 +163,7 @@
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <a class="btn btn-secondary btn-prev">Previous</a>
-                                                    <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+                                                    <a href="#!/cron-job-pkg/cron-job/edit/{{$ctrl.cron_job.id}}" type="button" class="btn btn-primary">Edit</a>
                                                 </div>
                                             </div>
                                         </div><!-- Tab Footer -->
@@ -175,6 +175,6 @@
                     </div><!-- Tab Form Body -->
                 </div><!-- Tab Form Wrap -->
             </div><!-- Page Form -->
-        </form>
+        <!-- </form> -->
     </div><!-- Page Main Content -->
 </div><!-- Content Wrap -->
