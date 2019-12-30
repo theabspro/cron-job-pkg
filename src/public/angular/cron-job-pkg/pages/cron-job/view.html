@@ -39,75 +39,44 @@
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
-                                                <label>Type <sup class="mandatory">*</sup></label>
-                                                <md-select ng-model="$ctrl.cron_job.type_id" placeholder="Select Type" md-on-close="clearSearchType()" data-md-container-class="selectdemoSelectHeader">
-                                                    <md-select-header class="demo-select-header">
-                                                        <input ng-model="searchType" type="search" placeholder="Search for a Type.." class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
-                                                    </md-select-header>
-                                                    <md-optgroup>
-                                                        <md-option ng-value="i.id" ng-repeat="i in $ctrl.cron_job_types | filter:searchType">{{i.name}}</md-option>
-                                                    </md-optgroup>
-                                                </md-select>
-                                                <input type="hidden" name="type_id" value="{{$ctrl.cron_job.type_id}}" class="required">
+                                                <label>Type</label>
+                                                <input type="text" class="form-control" name="type_id" ng-model="$ctrl.cron_job.type.name" readonly>
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
-                                                <label>Name <sup class="mandatory">*</sup></label>
-                                                <input type="text" class="form-control required" ng-model="$ctrl.cron_job.name" name="name" placeholder="Enter CronJob Name" autocomplete="off" minlength="3" maxlength="191" required="required"/>
+                                                <label>Name</label>
+                                                <input type="text" class="form-control" ng-model="$ctrl.cron_job.name" name="name" placeholder="Enter CronJob Name" autocomplete="off" readonly/>
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
-                                                <label>Frequency <sup class="mandatory">*</sup></label>
-                                                <md-select ng-model="$ctrl.cron_job.frequency_id" placeholder="Select Frequency" md-on-close="clearSearchType()" data-md-container-class="selectdemoSelectHeader">
-                                                    <md-select-header class="demo-select-header">
-                                                        <input ng-model="searchType" type="search" placeholder="Search for a Frequency.." class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
-                                                    </md-select-header>
-                                                    <md-optgroup>
-                                                        <md-option ng-value="i.id" ng-repeat="i in $ctrl.frequencies | filter:searchType">{{i.name}}</md-option>
-                                                    </md-optgroup>
-                                                </md-select>
-                                                <input type="hidden" name="frequency_id" value="{{$ctrl.cron_job.frequency_id}}" class="required">
+                                                <label>Frequency</label>
+                                                <input type="text" class="form-control" name="frequency_id" ng-model="$ctrl.cron_job.frequency.name" readonly>
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <div class="col-md-3" ng-if="$ctrl.cron_job.frequency_id == 1360">
                                             <div class="input-text form-group">
                                                 <label>Custom <sup class="mandatory">*</sup></label>
-                                                <input type="text" class="form-control cron_job_custom" ng-model="$ctrl.cron_job.frequency_command" name="frequency_command" placeholder="Enter Frequency Command" autocomplete="off" minlength="3" maxlength="255" required="required"/>
+                                                <input type="text" class="form-control cron_job_custom" ng-model="$ctrl.cron_job.frequency_command" name="frequency_command" placeholder="Enter Frequency Command" autocomplete="off" readonly/>
                                             </div><!-- Feild -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
-                                                <label>Allow Overlapping <sup class="mandatory">*</sup></label>
-                                                <div class="tab-switch">
-                                                    <md-switch ng-model="$ctrl.allow_overlapping" aria-label="Switch 1" ng-true-value="'No'" ng-false-value="'Yes'" class="md-warn type-2">
-                                                        {{ $ctrl.allow_overlapping }}
-                                                    </md-switch>
-                                                    <input type="hidden" name="allow_overlapping" value="{{$ctrl.allow_overlapping}}">
-                                                </div>
+                                                <label>Allow Overlapping</label>
+                                                <input type="text" class="form-control" ng-model="$ctrl.allow_overlapping" name="allow_overlapping" autocomplete="off" readonly/>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
-                                                <label>Run In Background <sup class="mandatory">*</sup></label>
-                                                <div class="tab-switch">
-                                                    <md-switch ng-model="$ctrl.run_in_background" aria-label="Switch 1" ng-true-value="'No'" ng-false-value="'Yes'" class="md-warn type-2">
-                                                        {{ $ctrl.run_in_background }}
-                                                    </md-switch>
-                                                    <input type="hidden" name="run_in_background" value="{{$ctrl.run_in_background}}">
-                                                </div>
+                                                <label>Run In Background</label>
+                                                <input type="text" class="form-control" ng-model="$ctrl.run_in_background" name="run_in_background" autocomplete="off" readonly/>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="col-md-3">
                                             <div class="input-text form-group">
-                                                <label>Active Status <sup class="mandatory">*</sup></label>
-                                                <div class="tab-switch">
-                                                    <md-switch ng-model="$ctrl.switch_value" aria-label="Switch 1" ng-true-value="'Inactive'" ng-false-value="'Active'" class="md-warn">
-                                                        {{ $ctrl.switch_value }}
-                                                    </md-switch>
-                                                    <input type="hidden" name="status" value="{{$ctrl.switch_value}}">
-                                                </div>
+                                                <label>Active Status</label>
+                                                <input type="text" class="form-control" ng-model="$ctrl.switch_value" name="status" autocomplete="off" readonly/>
                                             </div><!-- Form Group -->
                                         </div><!-- Column -->
                                         <div class="tab-pane-footer">
@@ -123,42 +92,37 @@
                             <div class="tab-pane fade" id="address-details" data-animation="fadeInUp" data-animation-delay="300">
                                 <div class="tab-pane-wrap">
                                     <div class="row">
-                                        <div class="table-responsive">
-                                                <table class="table table-form">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="width-230">Key<sup class="mandatory">*</sup></th>
-                                                            <th class="width-230">Value<sup class="mandatory">*</sup></th>
-                                                            <!-- <th class="width-60"></th> -->
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody class="cron_job_parameter_list" ng-repeat="(index, cron_job_parameter) in $ctrl.cron_job.cron_job_parameters">
-                                                        <input type="hidden" name="cron_job_parameters[{{index}}][id]" value="{{cron_job_parameter.id}}">
-                                                        <input type="hidden" name="cron_job_parameters[{{index}}][cron_job_id]" value="{{$ctrl.cron_job.id}}">
-                                                        <tr>
-                                                            <td>
-                                                                <input type="text" name="cron_job_parameters[{{index}}][key]" ng-model="cron_job_parameter.key" class="form-control cron_job_parameter" placeholder="Enter Key" autocomplete="off" minlength="3" maxlength="191" required="required"/>
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="cron_job_parameters[{{index}}][value]" ng-model="cron_job_parameter.value" class="form-control cron_job_parameter" placeholder="Enter Value" autocomplete="off" minlength="3" maxlength="255" required="required"/>
-                                                            </td>
-                                                            <!--<td>
-                                                                <button class="btn-delete" ng-click="$ctrl.removeParameter(index, cron_job_parameter.id)" type="button">
-                                                                    <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
-                                                                </button>
-                                                            </td> -->
-                                                        </tr>
-                                                    </tbody>
-                                                    <tfoot>
-                                                        <tr>
-                                                            <td colspan="2">
-                                                                <!-- <button type="button" class="btn btn-primary-light btn-square" ng-click="$ctrl.addNewParameter()">+ Add More</button> -->
-                                                            </td>
-                                                        </tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div><!-- Table Responsive -->
-                                        </div><!-- Column -->
+                                        <div class="col-lg-6 col-md-8">
+                                            <div class="table-responsive">
+                                                    <table class="table table-form">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="width-230">Key<sup class="mandatory">*</sup></th>
+                                                                <th class="width-230">Value<sup class="mandatory">*</sup></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="cron_job_parameter_list" ng-repeat="(index, cron_job_parameter) in $ctrl.cron_job.cron_job_parameters">
+                                                            <input type="hidden" name="cron_job_parameters[{{index}}][id]" value="{{cron_job_parameter.id}}">
+                                                            <input type="hidden" name="cron_job_parameters[{{index}}][cron_job_id]" value="{{$ctrl.cron_job.id}}">
+                                                            <tr>
+                                                                <td>
+                                                                    <input type="text" name="cron_job_parameters[{{index}}][key]" ng-model="cron_job_parameter.key" class="form-control cron_job_parameter" placeholder="Enter Key" autocomplete="off" readonly/>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" name="cron_job_parameters[{{index}}][value]" ng-model="cron_job_parameter.value" class="form-control cron_job_parameter" placeholder="Enter Value" autocomplete="off" readonly/>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                        <tfoot>
+                                                            <tr>
+                                                                <td colspan="2">
+                                                                </td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div><!-- Table Responsive -->
+                                            </div><!-- Column -->
+                                        </div>
                                         <div class="tab-pane-footer">
                                             <div class="row">
                                                 <div class="col-md-12">
@@ -167,7 +131,6 @@
                                                 </div>
                                             </div>
                                         </div><!-- Tab Footer -->
-                                        <input type="hidden" name="cron_job_parameters_removal_ids" id="cron_job_parameters_removal_ids" value="">
                                     </div><!-- Row -->
                                 </div><!-- Tab Pane Wrap -->
                             </div><!-- Tabe Pane -->

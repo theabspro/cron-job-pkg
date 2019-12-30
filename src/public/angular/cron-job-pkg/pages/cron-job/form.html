@@ -123,42 +123,44 @@
                             <div class="tab-pane fade" id="address-details" data-animation="fadeInUp" data-animation-delay="300">
                                 <div class="tab-pane-wrap">
                                     <div class="row">
-                                        <div class="table-responsive">
-                                                <table class="table table-form">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="width-230">Key<sup class="mandatory">*</sup></th>
-                                                            <th class="width-230">Value<sup class="mandatory">*</sup></th>
-                                                            <th class="width-60"></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody class="cron_job_parameter_list" ng-repeat="(index, cron_job_parameter) in $ctrl.cron_job.cron_job_parameters">
-                                                        <input type="hidden" name="cron_job_parameters[{{index}}][id]" value="{{cron_job_parameter.id}}">
-                                                        <input type="hidden" name="cron_job_parameters[{{index}}][cron_job_id]" value="{{$ctrl.cron_job.id}}">
-                                                        <tr>
-                                                            <td>
-                                                                <input type="text" name="cron_job_parameters[{{index}}][key]" ng-model="cron_job_parameter.key" class="form-control cron_job_parameter" placeholder="Enter Key" autocomplete="off" minlength="3" maxlength="191" required="required"/>
-                                                            </td>
-                                                            <td>
-                                                                <input type="text" name="cron_job_parameters[{{index}}][value]" ng-model="cron_job_parameter.value" class="form-control cron_job_parameter" placeholder="Enter Value" autocomplete="off" minlength="3" maxlength="255" required="required"/>
-                                                            </td>
-                                                            <td>
-                                                                <button class="btn-delete" ng-click="$ctrl.removeParameter(index, cron_job_parameter.id)" type="button">
-                                                                    <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                    <tfoot>
-                                                        <tr>
-                                                            <td colspan="3">
-                                                                <button type="button" class="btn btn-primary-light btn-square" ng-click="$ctrl.addNewParameter()">+ Add More</button>
-                                                            </td>
-                                                        </tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div><!-- Table Responsive -->
-                                        </div><!-- Column -->
+                                        <div class="col-lg-6 col-md-8">
+                                            <div class="table-responsive">
+                                                    <table class="table table-form">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="width-230">Key<sup class="mandatory">*</sup></th>
+                                                                <th class="width-230">Value<sup class="mandatory">*</sup></th>
+                                                                <th class="width-60"></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="cron_job_parameter_list" ng-repeat="(index, cron_job_parameter) in $ctrl.cron_job.cron_job_parameters">
+                                                            <input type="hidden" name="cron_job_parameters[{{index}}][id]" value="{{cron_job_parameter.id}}">
+                                                            <input type="hidden" name="cron_job_parameters[{{index}}][cron_job_id]" value="{{$ctrl.cron_job.id}}">
+                                                            <tr>
+                                                                <td>
+                                                                    <input type="text" name="cron_job_parameters[{{index}}][key]" ng-model="cron_job_parameter.key" class="form-control cron_job_parameter type-sm" placeholder="Enter Key" autocomplete="off" minlength="3" maxlength="191" required="required"/>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" name="cron_job_parameters[{{index}}][value]" ng-model="cron_job_parameter.value" class="form-control cron_job_parameter type-sm" placeholder="Enter Value" autocomplete="off" minlength="3" maxlength="255" required="required"/>
+                                                                </td>
+                                                                <td>
+                                                                    <button class="btn-delete" ng-click="$ctrl.removeParameter(index, cron_job_parameter.id)" type="button">
+                                                                        <img class="img-responsive" src="./public/theme/img/table/cndn/delete.svg" alt="Delete" />
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                        <tfoot>
+                                                            <tr>
+                                                                <td colspan="3">
+                                                                    <button type="button" class="btn btn-primary-light btn-square" ng-click="$ctrl.addNewParameter()">+ Add More</button>
+                                                                </td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div><!-- Table Responsive -->
+                                            </div><!-- Column -->
+                                        </div>
                                         <div class="tab-pane-footer">
                                             <div class="row">
                                                 <div class="col-md-12">

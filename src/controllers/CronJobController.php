@@ -217,12 +217,12 @@ class CronJobController extends Controller {
 
 	public function viewCronJob($id) {
 		$this->data['cron_job'] = CronJob::withTrashed()->where('id', $id)->with([
+			'type',
+			'frequency',
 			'cronJobParameters',
 		])
 			->first();
 		$this->data['action'] = 'View';
-		$this->data['cron_job_types'] = Collect(CronJobType::select('id', 'name')->get())->prepend(['id' => '', 'name' => 'Select Type']);
-		$this->data['frequencies'] = Collect(Config::select('id', 'name')->where('config_type_id', 23)->get())->prepend(['id' => '', 'name' => 'Select Frequency']);
 
 		return response()->json($this->data);
 	}

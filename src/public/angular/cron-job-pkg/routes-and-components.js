@@ -324,3 +324,51 @@ app.component('cronJobForm', {
         });
     }
 });
+
+//------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------
+app.component('cronJobView', {
+    templateUrl: cron_job_view_template_url,
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope) {
+        get_view_data_url = typeof($routeParams.id) == 'undefined' ? cron_job_view_data_url : cron_job_view_data_url + '/' + $routeParams.id;
+        var self = this;
+        self.hasPermission = HelperService.hasPermission;
+        self.angular_routes = angular_routes;
+        $http.get(
+            get_view_data_url
+        ).then(function(response) {
+            // console.log(response.data);
+            self.cron_job = response.data.cron_job;
+            self.action = response.data.action;
+            $rootScope.loading = false;
+            if (self.cron_job.deleted_at == null) {
+                self.switch_value = 'Active';
+            } else {
+                self.switch_value = 'Inactive';
+            }
+            if(self.cron_job.allow_overlapping == '1' || self.cron_job.allow_overlapping == 1) {
+                self.allow_overlapping = 'Yes';
+            } else {
+                self.allow_overlapping = 'No';
+            }
+            if(self.cron_job.run_in_background == '1' || self.cron_job.run_in_background == 1) {
+                self.run_in_background   = 'Yes';
+            } else {
+                self.run_in_background   = 'No';
+            }
+        });
+
+        /* Tab Funtion */
+        $('.btn-nxt').on("click", function() {
+            $('.cndn-tabs li.active').next().children('a').trigger("click");
+            tabPaneFooter();
+        });
+        $('.btn-prev').on("click", function() {
+            $('.cndn-tabs li.active').prev().children('a').trigger("click");
+            tabPaneFooter();
+        });
+        $('.btn-pills').on("click", function() {
+            tabPaneFooter();
+        });
+    }
+});
