@@ -18,10 +18,30 @@ class CronJobController extends Controller {
 	public function __construct() {
 	}
 
+	public function getCronJobFilter() {
+		$this->data['cron_job_types'] = Collect(CronJobType::select('id', 'name')->get())->prepend(['id' => '', 'name' => 'Select Type']);
+		$this->data['frequencies'] = Collect(Config::select('id', 'name')->where('config_type_id', 23)->get())->prepend(['id' => '', 'name' => 'Select Frequency']);
+		$this->data['allow_overlapping_filter'] = array(
+			array('name' => "Select Allow Overlapping", 'id' => ""),
+			array('name' => "Yes", 'id' => "1"),
+			array('name' => "No", 'id' => "0"),
+		);
+		$this->data['run_in_background_filter'] = array(
+			array('name' => "Select Run In Background", 'id' => ""),
+			array('name' => "Yes", 'id' => "1"),
+			array('name' => "No", 'id' => "0"),
+		);
+		return response()->json($this->data);
+	}
+
 	public function getCronJobList(Request $request) {
+		// dd($request->all());
+		$cron_job_name_filter = $request->cron_job_name;
 		$cron_job_list = CronJob::withTrashed()
 			->select(
 				'cron_jobs.id',
+				'cron_jobs.type_id',
+				'cron_jobs.frequency_id',
 				'cron_job_types.name as type',
 				'cron_job_types.description',
 				'configs.name as frequency',
@@ -33,26 +53,31 @@ class CronJobController extends Controller {
 			->leftJoin('cron_job_types', 'cron_job_types.id', 'cron_jobs.type_id')
 			->leftJoin('configs', 'configs.id', 'cron_jobs.frequency_id')
 			->where('cron_jobs.company_id', Auth::user()->company_id)
-		// ->where(function ($query) use ($request) {
-		// 	if (!empty($request->cron_job_code)) {
-		// 		$query->where('cron_jobs.code', 'LIKE', '%' . $request->cron_job_code . '%');
-		// 	}
-		// })
-		// ->where(function ($query) use ($request) {
-		// 	if (!empty($request->cron_job_name)) {
-		// 		$query->where('cron_jobs.name', 'LIKE', '%' . $request->cron_job_name . '%');
-		// 	}
-		// })
-		// ->where(function ($query) use ($request) {
-		// 	if (!empty($request->mobile_no)) {
-		// 		$query->where('cron_jobs.mobile_no', 'LIKE', '%' . $request->mobile_no . '%');
-		// 	}
-		// })
-		// ->where(function ($query) use ($request) {
-		// 	if (!empty($request->email)) {
-		// 		$query->where('cron_jobs.email', 'LIKE', '%' . $request->email . '%');
-		// 	}
-		// })
+			->where(function ($query) use ($cron_job_name_filter) {
+				if ($cron_job_name_filter != null) {
+					$query->where('cron_jobs.name', 'like', '%' . $cron_job_name_filter . '%');
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->type_id)) {
+					$query->where('cron_jobs.type_id', $request->type_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!empty($request->frequency_id)) {
+					$query->where('cron_jobs.frequency_id', $request->frequency_id);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!is_null($request->allow_overlapping)) {
+					$query->where('cron_jobs.allow_overlapping', $request->allow_overlapping);
+				}
+			})
+			->where(function ($query) use ($request) {
+				if (!is_null($request->run_in_background)) {
+					$query->where('cron_jobs.run_in_background', $request->run_in_background);
+				}
+			})
 			->orderby('cron_jobs.id', 'desc');
 
 		return Datatables::of($cron_job_list)

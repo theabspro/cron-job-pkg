@@ -28,72 +28,91 @@ app.config(['$routeProvider', function($routeProvider) {
 
 app.component('cronJobList', {
     templateUrl: cron_job_list_template_url,
-    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location) {
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect) {
         // $scope.loading = true;
         var self = this;
         self.hasPermission = HelperService.hasPermission;
-        var table_scroll;
-        table_scroll = $('.page-main-content').height() - 37;
-        var dataTable = $('#cron_jobs_list').DataTable({
-            "dom": cndn_dom_structure,
-            "language": {
-                // "search": "",
-                // "searchPlaceholder": "Search",
-                "lengthMenu": "Rows _MENU_",
-                "paginate": {
-                    "next": '<i class="icon ion-ios-arrow-forward"></i>',
-                    "previous": '<i class="icon ion-ios-arrow-back"></i>'
+        $http.get(
+            cron_job_filter_data_url
+        ).then(function(response) {
+            self.cron_job_types = response.data.cron_job_types;
+            self.frequencies = response.data.frequencies;
+            self.allow_overlapping_filter = response.data.allow_overlapping_filter;
+            self.run_in_background_filter = response.data.run_in_background_filter;
+        });
+        var dataTable;
+        setTimeout(function() {
+            var table_scroll;
+            table_scroll = $('.page-main-content').height() - 37;
+            dataTable = $('#cron_jobs_list').DataTable({
+                "dom": cndn_dom_structure,
+                "language": {
+                    // "search": "",
+                    // "searchPlaceholder": "Search",
+                    "lengthMenu": "Rows _MENU_",
+                    "paginate": {
+                        "next": '<i class="icon ion-ios-arrow-forward"></i>',
+                        "previous": '<i class="icon ion-ios-arrow-back"></i>'
+                    },
                 },
-            },
-            pageLength: 10,
-            processing: true,
-            stateSaveCallback: function(settings, data) {
-                localStorage.setItem('CDataTables_' + settings.sInstance, JSON.stringify(data));
-            },
-            stateLoadCallback: function(settings) {
-                var state_save_val = JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
-                if (state_save_val) {
-                    $('#search_cron_job').val(state_save_val.search.search);
-                }
-                return JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
-            },
-            serverSide: true,
-            paging: true,
-            stateSave: true,
-            ordering: false,
-            scrollY: table_scroll + "px",
-            scrollCollapse: true,
-            ajax: {
-                url: laravel_routes['getCronJobList'],
-                type: "GET",
-                dataType: "json",
-                data: function(d) {
-                    // d.cron_job_code = $('#cron_job_code').val();
-                    // d.cron_job_name = $('#cron_job_name').val();
-                    // d.mobile_no = $('#mobile_no').val();
-                    // d.email = $('#email').val();
+                pageLength: 10,
+                processing: true,
+                stateSaveCallback: function(settings, data) {
+                    localStorage.setItem('CDataTables_' + settings.sInstance, JSON.stringify(data));
                 },
-            },
+                stateLoadCallback: function(settings) {
+                    var state_save_val = JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
+                    if (state_save_val) {
+                        $('#search_cron_job').val(state_save_val.search.search);
+                    }
+                    return JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
+                },
+                serverSide: true,
+                paging: true,
+                stateSave: true,
+                ordering: false,
+                scrollY: table_scroll + "px",
+                scrollCollapse: true,
+                ajax: {
+                    url: laravel_routes['getCronJobList'],
+                    type: "GET",
+                    dataType: "json",
+                    data: function(d) {
+                        d.cron_job_name = $('#cron_job_name').val();
+                        d.type_id = $('#type_id').val();
+                        d.frequency_id = $('#frequency_id').val();
+                        d.allow_overlapping = $('#allow_overlapping').val();
+                        d.run_in_background = $('#run_in_background').val();
+                    },
+                },
 
-            columns: [
-                { data: 'action', class: 'action', name: 'action', searchable: false },
-                { data: 'type', name: 'cron_job_types.name', searchable: true },
-                { data: 'description', name: 'cron_job_types.description', searchable: true },
-                { data: 'name', name: 'cron_jobs.name', searchable: true },
-                { data: 'frequency', name: 'configs.name', searchable: true },
-                { data: 'allow_overlapping', name: 'cron_jobs.allow_overlapping', searchable: false },
-                { data: 'run_in_background', name: 'cron_jobs.run_in_background', searchable: false },
-            ],
-            "infoCallback": function(settings, start, end, max, total, pre) {
-                $('#table_info').html(total)
-                $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
-            },
-            rowCallback: function(row, data) {
-                $(row).addClass('highlight-row');
+                columns: [
+                    { data: 'action', class: 'action', name: 'action', searchable: false },
+                    { data: 'type', name: 'cron_job_types.name', searchable: true },
+                    { data: 'description', name: 'cron_job_types.description', searchable: true },
+                    { data: 'name', name: 'cron_jobs.name', searchable: true },
+                    { data: 'frequency', name: 'configs.name', searchable: true },
+                    { data: 'allow_overlapping', name: 'cron_jobs.allow_overlapping', searchable: false },
+                    { data: 'run_in_background', name: 'cron_jobs.run_in_background', searchable: false },
+                ],
+                "infoCallback": function(settings, start, end, max, total, pre) {
+                    $('#table_info').html(total)
+                    $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
+                },
+                rowCallback: function(row, data) {
+                    $(row).addClass('highlight-row');
+                }
+            });
+            $('.dataTables_length select').select2();
+        },1000);
+        $('.modal').bind('click', function(event) {
+            if ($('.md-select-menu-container').hasClass('md-active')) {
+                $mdSelect.hide();
             }
         });
-        $('.dataTables_length select').select2();
-
+        $('.refresh_table').on("click", function() {
+            $('#cron_jobs_list').DataTable().ajax.reload();
+        });
         $scope.clear_search = function() {
             $('#search_cron_job').val('');
             $('#cron_jobs_list').DataTable().search('').draw();
@@ -131,25 +150,43 @@ app.component('cronJobList', {
         }
 
         //FOR FILTER
-        // $('#cron_job_code').on('keyup', function() {
-        //     dataTables.fnFilter();
-        // });
-        // $('#cron_job_name').on('keyup', function() {
-        //     dataTables.fnFilter();
-        // });
-        // $('#mobile_no').on('keyup', function() {
-        //     dataTables.fnFilter();
-        // });
-        // $('#email').on('keyup', function() {
-        //     dataTables.fnFilter();
-        // });
-        // $scope.reset_filter = function() {
-        //     $("#cron_job_name").val('');
-        //     $("#cron_job_code").val('');
-        //     $("#mobile_no").val('');
-        //     $("#email").val('');
-        //     dataTables.fnFilter();
-        // }
+        $('#cron_job_name').on('keyup', function() {
+            setTimeout(function() {
+                dataTable.draw();
+            }, 900);
+        });
+        $scope.onSelectedtype = function(selected_type) {
+            setTimeout(function() {
+                $('#type_id').val(selected_type);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedFrequency = function(selected_frequency_id) {
+            setTimeout(function() {
+                $('#frequency_id').val(selected_frequency_id);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedOverlapping = function(selected_allow_overlapping_id) {
+            setTimeout(function() {
+                $('#allow_overlapping').val(selected_allow_overlapping_id);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedRunInBackground = function(selected_run_in_background_id) {
+            setTimeout(function() {
+                $('#run_in_background').val(selected_run_in_background_id);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.reset_filter = function() {
+            $("#cron_job_name").val('');
+            $("#type_id").val('');
+            $("#frequency_id").val('');
+            $("#allow_overlapping").val('');
+            $("#run_in_background").val('');
+            dataTable.draw();
+        }
 
         $rootScope.loading = false;
     }
@@ -166,7 +203,7 @@ app.component('cronJobForm', {
         $http.get(
             get_form_data_url
         ).then(function(response) {
-            console.log(response.data);
+            // console.log(response.data);
             self.cron_job = response.data.cron_job;
             self.cron_job_types = response.data.cron_job_types;
             self.frequencies = response.data.frequencies;
