@@ -78,7 +78,7 @@ app.component('cronJobList', {
             columns: [
                 { data: 'action', class: 'action', name: 'action', searchable: false },
                 { data: 'type', name: 'cron_job_types.name', searchable: true },
-                { data: 'description', name: 'cron_jobs.description', searchable: true },
+                { data: 'description', name: 'cron_job_types.description', searchable: true },
                 { data: 'name', name: 'cron_jobs.name', searchable: true },
                 { data: 'frequency', name: 'configs.name', searchable: true },
                 { data: 'allow_overlapping', name: 'cron_jobs.allow_overlapping', searchable: false },
@@ -98,10 +98,10 @@ app.component('cronJobList', {
             $('#search_cron_job').val('');
             $('#cron_jobs_list').DataTable().search('').draw();
         }
-
-        var dataTables = $('#cron_jobs_list').dataTable();
         $("#search_cron_job").keyup(function() {
-            dataTables.fnFilter(this.value);
+            dataTable
+                .search(this.value)
+                .draw();
         });
 
         //DELETE
