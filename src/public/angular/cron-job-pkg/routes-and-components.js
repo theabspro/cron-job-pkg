@@ -409,3 +409,138 @@ app.component('cronJobView', {
         });
     }
 });
+
+//------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------
+/*Cron Job Report*/
+app.component('cronJobReportList', {
+    templateUrl: cron_job_report_list_template_url,
+    controller: function($http, $location, HelperService, $scope, $routeParams, $rootScope, $location, $mdSelect) {
+        // $scope.loading = true;
+        var self = this;
+        self.hasPermission = HelperService.hasPermission;
+        $http.get(
+            cron_job_report_filter_data_url
+        ).then(function(response) {
+            self.cron_job_types = response.data.cron_job_types;
+            self.cron_job_names = response.data.cron_job_names;
+            self.status = response.data.status;
+        });
+        var dataTable;
+        setTimeout(function() {
+            var table_scroll;
+            table_scroll = $('.page-main-content').height() - 37;
+            dataTable = $('#cron_job_report_list').DataTable({
+                "dom": cndn_dom_structure,
+                "language": {
+                    // "search": "",
+                    // "searchPlaceholder": "Search",
+                    "lengthMenu": "Rows _MENU_",
+                    "paginate": {
+                        "next": '<i class="icon ion-ios-arrow-forward"></i>',
+                        "previous": '<i class="icon ion-ios-arrow-back"></i>'
+                    },
+                },
+                pageLength: 10,
+                processing: true,
+                stateSaveCallback: function(settings, data) {
+                    localStorage.setItem('CDataTables_' + settings.sInstance, JSON.stringify(data));
+                },
+                stateLoadCallback: function(settings) {
+                    var state_save_val = JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
+                    if (state_save_val) {
+                        $('#search_cron_job').val(state_save_val.search.search);
+                    }
+                    return JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
+                },
+                serverSide: true,
+                paging: true,
+                stateSave: true,
+                ordering: false,
+                scrollY: table_scroll + "px",
+                scrollCollapse: true,
+                ajax: {
+                    url: laravel_routes['getCronJobReportList'],
+                    type: "GET",
+                    dataType: "json",
+                    data: function(d) {
+                        d.type_id = $('#type_id').val();
+                        d.cron_job_id = $('#cron_job_id').val();
+                        d.status_id = $('#status_id').val();
+                    },
+                },
+
+                columns: [
+                    { data: 'action', class: 'action', name: 'action', searchable: false },
+                    { data: 'type', name: 'cron_job_types.name', searchable: true },
+                    { data: 'cron_job', name: 'cj.name', searchable: true },
+                    { data: 'frequency_name', name: 'frequency.name', searchable: true },
+                    { data: 'started_at', name: 'cron_job_reports.started_at', searchable: false },
+                    { data: 'completed_at', name: 'cron_job_reports.completed_at', searchable: false },
+                    { data: 'status', name: 'status.name', searchable: true },
+                    { data: 'errors', name: 'cron_job_reports.errors', searchable: false },
+                    { data: 'duration', searchable: false },
+                    { data: 'total_records', name: 'cron_job_reports.total_records', searchable: false },
+                    { data: 'processed_count', name: 'cron_job_reports.processed_count', searchable: false },
+                    { data: 'success_count', name: 'cron_job_reports.success_count', searchable: false },
+                    { data: 'error_count', name: 'cron_job_reports.error_count', searchable: false },
+                    { data: 'new_count', name: 'cron_job_reports.new_count', searchable: false },
+                    { data: 'updated_count', name: 'cron_job_reports.updated_count', searchable: false },
+                ],
+                "infoCallback": function(settings, start, end, max, total, pre) {
+                    $('#table_info').html(total)
+                    $('.foot_info').html('Showing ' + start + ' to ' + end + ' of ' + max + ' entries')
+                },
+                rowCallback: function(row, data) {
+                    $(row).addClass('highlight-row');
+                }
+            });
+            $('.dataTables_length select').select2();
+        },1000);
+        $('.modal').bind('click', function(event) {
+            if ($('.md-select-menu-container').hasClass('md-active')) {
+                $mdSelect.hide();
+            }
+        });
+        $('.refresh_table').on("click", function() {
+            $('#cron_job_report_list').DataTable().ajax.reload();
+        });
+        $scope.clear_search = function() {
+            $('#search_cron_job').val('');
+            $('#cron_job_report_list').DataTable().search('').draw();
+        }
+        $("#search_cron_job").keyup(function() {
+            dataTable
+                .search(this.value)
+                .draw();
+        });
+
+        //FOR FILTER
+        $scope.onSelectedtype = function(selected_type) {
+            setTimeout(function() {
+                $('#type_id').val(selected_type);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedCronJob = function(selected_cron_job) {
+            setTimeout(function() {
+                $('#cron_job_id').val(selected_cron_job);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.onSelectedStatus = function(selected_status) {
+            setTimeout(function() {
+                $('#status_id').val(selected_status);
+                dataTable.draw();
+            }, 900);
+        }
+        $scope.reset_filter = function() {
+            $("#type_id").val('');
+            $("#cron_job_id").val('');
+            $("#status_id").val('');
+            dataTable.draw();
+        }
+
+        $rootScope.loading = false;
+    }
+});
