@@ -7,4 +7,8 @@ Route::group(['namespace' => 'Abs\CronJobPkg', 'middleware' => ['web', 'auth'], 
 	Route::get('/cron-job/delete/{id}', 'CronJobController@deleteCronJob')->name('deleteCronJob');
 	Route::get('/cron-job/view/{id}', 'CronJobController@viewCronJob')->name('viewCronJob');
 	Route::get('/cron-job/filter', 'CronJobController@getCronJobFilter')->name('getCronJobFilter');
+
+	/*Cron Job Report*/
+	Route::get('/cron-job-reports/get-list', 'CronJobReportController@getCronJobReportList')->name('getCronJobReportList');
+	Route::get('/cron-job-reports/filter', 'CronJobReportController@getCronJobReportFilter')->name('getCronJobReportFilter');
 });

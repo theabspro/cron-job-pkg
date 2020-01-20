@@ -15,6 +15,7 @@
     var cron_job_filter_data_url = "{{route('getCronJobFilter')}}";
 
 	//CRON JOB REPORTS
-
+    var cron_job_report_list_template_url = "{{URL::asset($cron_job_pkg_prefix.'/public/angular/cron-job-pkg/pages/cron-job-report/list.html')}}";
+    var cron_job_report_filter_data_url = "{{route('getCronJobReportFilter')}}";
 </script>
 <script type="text/javascript" src="{{URL::asset($cron_job_pkg_prefix.'/public/angular/cron-job-pkg/routes-and-components.js')}}"></script>
