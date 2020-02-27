@@ -1,0 +1,161 @@
+<div class="content-wrap cndn-wrap">
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="page-header-content-left">
+                <div class="page-header-content title-block">
+                    <h1 class="title type-2">Cron Jobs</h1>
+                </div><!-- Page Header Content -->
+                <div class="page-header-content button-block">
+                    <button class="btn btn-bordered" data-toggle="modal" data-target="#cron_job-filter-modal"><i class="icon ion-md-funnel"></i>Filter</button>
+                </div><!-- Page Header Content -->
+            </div><!-- Page Header Content Left -->
+            <div class="page-header-content-right">
+                <div class="page-header-content indicator-block">
+                    <ul class="indicator-list">
+                        <li class="green">Active</li>
+                        <li class="red">In Active</li>
+                    </ul>
+                </div><!-- Page Header Content -->
+                <div class="page-header-content search-block">
+                    <div class="search_filter">
+                        <label>
+                            <input type="search" id="search_cron_job" class="form-control" placeholder="Search" />
+                            <button class="btn-clear" ng-click="clear_search()">Clear</button>
+                        </label>
+                    </div><!-- Search Filter -->
+                </div><!-- Page Header Content -->
+                <div class="page-header-content button-block">
+                    <button type="button" class="btn btn-refresh refresh_table">
+                        <img src="./public/theme/img/content/refresh-arrow.png" class="img-responsive btn-refresh-icon">
+                    </button>
+                </div>
+                <div class="page-header-content button-block">
+                    <a href="#!/cron-job-pkg/cron-job/add" class="btn btn-primary">Add New</a>
+                </div><!-- Page Header Content -->
+            </div><!-- Page Header Content Right -->
+        </div><!-- Page Header Inner -->
+    </div><!-- Page Header -->
+    <div class="page-main-content list-page-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table" id="cron_jobs_list" style="width: 100% !important;">
+                        <thead>
+                            <tr>
+                                <th class="action">Action</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Name</th>
+                                <th>Frequency</th>
+                                <th>Allow Overlapping</th>
+                                <th>Run in Background</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div><!-- Column -->
+            </div><!-- Row -->
+        </div><!-- Container -->
+    </div><!-- Page Main Content -->
+</div><!-- Content Wrap -->
+<!-- Filter Modal -->
+<div class="modal fade filter" id="cron_job-filter-modal" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close ripple" data-dismiss="modal" aria-label="Close"><i class="icon ion-md-close"></i></button>
+                <h5 class="modal-title" id="myModalLabel">CronJob Filter</h5>
+            </div><!-- Modal Header -->
+            <div class="modal-body">
+                <div class="modal-form">
+                    <div class="row modal-row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Type</label>
+                                <md-select ng-model="$ctrl.cron_job.type_id" ng-change="onSelectedtype($ctrl.cron_job.type_id)" placeholder="Select Type" md-on-close="clearSearchType()" data-md-container-class="selectdemoSelectHeader">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchType" type="search" placeholder="Search for a Type.." class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                    </md-select-header>
+                                    <md-optgroup>
+                                        <md-option ng-value="i.id" ng-repeat="i in $ctrl.cron_job_types | filter:searchType">{{i.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" name="type_id" id="type_id" value="">
+                            </div><!-- Field -->
+                        </div><!-- Column -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>CronJob Name</label>
+                                <input type="text" class="form-control" id="cron_job_name" name="cron_job_name" placeholder="Enter CronJob Name" autocomplete="off" value="">
+                            </div><!-- Field -->
+                        </div><!-- Column -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Frequency</label>
+                                <md-select ng-model="$ctrl.cron_job.frequency_id" ng-change="onSelectedFrequency($ctrl.cron_job.frequency_id)" placeholder="Select Frequency" md-on-close="clearSearchType()" data-md-container-class="selectdemoSelectHeader">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchType" type="search" placeholder="Search for a Frequency.." class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                    </md-select-header>
+                                    <md-optgroup>
+                                        <md-option ng-value="i.id" ng-repeat="i in $ctrl.frequencies | filter:searchType">{{i.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" name="frequency_id" id="frequency_id" value="">
+                            </div><!-- Field -->
+                        </div><!-- Column -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Allow Overlapping</label>
+                                <md-select ng-model="$ctrl.cron_job.allow_overlapping_id" ng-change="onSelectedOverlapping($ctrl.cron_job.allow_overlapping_id)" placeholder="Select Overlapping" md-on-close="clearSearchType()" data-md-container-class="selectdemoSelectHeader">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchType" type="search" placeholder="Search for a Overlapping.." class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                    </md-select-header>
+                                    <md-optgroup>
+                                        <md-option ng-value="i.id" ng-repeat="i in $ctrl.allow_overlapping_filter | filter:searchType">{{i.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" name="allow_overlapping" id="allow_overlapping" value="">
+                            </div><!-- Field -->
+                        </div><!-- Column -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Run In Background</label>
+                                <md-select ng-model="$ctrl.cron_job.run_in_background_id" ng-change="onSelectedRunInBackground($ctrl.cron_job.run_in_background_id)" placeholder="Select Run In Background" md-on-close="clearSearchType()" data-md-container-class="selectdemoSelectHeader">
+                                    <md-select-header class="demo-select-header">
+                                        <input ng-model="searchType" type="search" placeholder="Search for a Run In Background.." class="demo-header-searchbox md-text" ng-keydown="$event.stopPropagation()">
+                                    </md-select-header>
+                                    <md-optgroup>
+                                        <md-option ng-value="i.id" ng-repeat="i in $ctrl.run_in_background_filter | filter:searchType">{{i.name}}</md-option>
+                                    </md-optgroup>
+                                </md-select>
+                                <input type="hidden" name="run_in_background" id="run_in_background" value="">
+                            </div><!-- Field -->
+                        </div><!-- Column -->
+                    </div>
+                    <div class="row modal-row">
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-rose" ng-click="reset_filter(); $ctrl.cron_job.type_id=''; $ctrl.cron_job.frequency_id=''; $ctrl.cron_job.allow_overlapping_id=''; $ctrl.cron_job.run_in_background_id=''">Reset Filter</button>
+                        </div>
+                    </div><!-- Row -->
+                </div><!-- Modal Form -->
+            </div><!-- Modal Body -->
+        </div><!-- Modal Content -->
+    </div><!-- Modal Dialog -->
+</div><!-- Modal -->
+<!-- Modal -->
+<div class="modal fade alert-modal failure" id="delete_cron_job" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">ARE YOU SURE?</h4>
+            </div>
+            <div class="modal-body">
+                <h5>Delete</h5>
+                <p>You can’t retrive the data again, Are you sure you want to delete? </p>
+                <input type="hidden" name="cron_job_id" id="cron_job_id" value="">
+                <button class="btn btn-grey" data-dismiss="modal" aria-label="Close">Cancel</button>
+                <button class="btn btn-rose" ng-click="deleteConfirm()" type="button" data-dismiss="modal" aria-label="Close">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
