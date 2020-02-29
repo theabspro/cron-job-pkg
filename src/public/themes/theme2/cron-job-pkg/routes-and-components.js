@@ -43,6 +43,7 @@ app.component('cronJobList', {
                 paging: true,
                 stateSave: true,
                 ordering: false,
+                scrollX: true,
                 scrollY: table_scroll + "px",
                 scrollCollapse: true,
                 ajax: {
@@ -429,6 +430,7 @@ app.component('cronJobReportList', {
                 paging: true,
                 stateSave: true,
                 ordering: false,
+                scrollX: true,
                 scrollY: table_scroll + "px",
                 scrollCollapse: true,
                 ajax: {

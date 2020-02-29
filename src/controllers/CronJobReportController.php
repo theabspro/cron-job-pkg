@@ -14,6 +14,7 @@ use Yajra\Datatables\Datatables;
 class CronJobReportController extends Controller {
 
 	public function __construct() {
+		$this->data['theme'] = config('custom.admin_theme');
 	}
 
 	public function getCronJobReportFilter() {
@@ -74,12 +75,12 @@ AS duration"),
 
 		return Datatables::of($cron_job_reports)
 			->addColumn('action', function ($cron_job_reports) {
-				$edit_img = asset('public/theme/img/table/cndn/edit.svg');
-				$delete_img = asset('public/theme/img/table/cndn/delete.svg');
-				return '
-					<a href="#!/cron_job-pkg/cron_job/edit/' . $cron_job_reports->id . '">
-						<img src="' . $edit_img . '" alt="View" class="img-responsive">
-					</a>';
+				$error = asset('/public/themes/' . $this->data['theme'] . '/img/content/icons/error_normal.svg');
+				$error_active = asset('/public/themes/' . $this->data['theme'] . '/img/content/icons/error_hover.svg');
+				return
+				'<a href="public/cron-job-errors/' . $cron_job_reports->id . '.xlsx">
+						<img src="' . $error . '" alt="Error_report" class="img-responsive" onmouseover=this.src="' . $error_active . '" onmouseout=this.src="' . $error . '" ></a>'
+				;
 			})
 			->make(true);
 	}
