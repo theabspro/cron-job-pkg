@@ -28,8 +28,9 @@ class CronJobReportController extends Controller {
 			->join('cron_job_types', 'cron_job_types.id', 'cj.type_id')
 			->join('configs as frequency', 'frequency.id', 'cj.frequency_id')
 			->leftJoin('configs as status', 'status.id', '=', 'cron_job_reports.status_id')
-			->select(
+			->select([
 				'cron_job_reports.id as id',
+				'cron_job_types.name as type',
 				'cj.name as cron_job',
 				'cj.type_id',
 				'cron_job_types.name as type_name',
@@ -49,9 +50,9 @@ AS duration"),
 				'cron_job_reports.success_count',
 				'cron_job_reports.error_count',
 				'cron_job_reports.new_count',
-				'cron_job_reports.updated_count'
+				'cron_job_reports.updated_count',
 				// 'cron_job_reports.parameters'
-			)
+			])
 			->where('cj.company_id', Auth::user()->company_id)
 			->where(function ($query) use ($request) {
 				if (!empty($request->type_id)) {

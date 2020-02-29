@@ -1,0 +1,143 @@
+<!-- Content Wrap -->
+<div class="content-wrap cndn-wrap">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-inner">
+            <div class="page-header-content-left">
+                <div class="page-header-content button-block">
+                    <a href="#!/cron-job-pkg/cron-job/list" type="button" class="btn-back btn-img"><img class="img-responsive" src="./public/theme/img/content/previous.svg" alt="Back" /></a>
+                </div><!-- Page Header Content -->
+                <div class="page-header-content title-block">
+                    <h1 class="title"><b>{{$ctrl.action}} CronJob</b></h1>
+                    <p class="subtitle"><a href="#!/cron-job-pkg/cron-job/list">CronJob List</a> / {{$ctrl.action}}</p>
+                </div><!-- Page Header Content -->
+            </div><!-- Page Header Content Left -->
+        </div><!-- Page Header Inner -->
+    </div><!-- Page Header -->
+    <!-- Page Main Content -->
+    <div class="page-main-content form-content type2">
+        <!-- <form id="form" autocomplete="off"> -->
+            <input type="hidden" name="id" value="{{$ctrl.cron_job.id}}">
+            <div class="page-tab-form pb-70">
+                <div class="tab-form-wrap">
+                    <div class="tab-form-header">
+                        <div class="tab-header">
+                            <!-- Filters -->
+                            <div class="isotope-filters animated" data-animation="fadeInLeft" data-animation-delay="300">
+                                <ul class="nav nav-pills cndn-tabs">
+                                    <li class="active"><a class="filter active" data-target="#general-information" data-toggle="tab" aria-expanded="true">Cron Job Details</a></li>
+                                    <li><a data-target="#address-details" data-toggle="tab" aria-expanded="true" class="filter">Parameters</a></li>
+                                </ul>
+                            </div><!-- Filters -->
+                        </div><!-- Tab Header -->
+                    </div><!-- Tab Form Header -->
+                    <div class="tab-form-body">
+                        <div class="tab-content">
+                            <!-- TAB PANEL -->
+                            <div class="tab-pane fade in active" id="general-information" data-animation="fadeInUp" data-animation-delay="300">
+                                <div class="tab-pane-wrap">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="input-text form-group">
+                                                <label>Type</label>
+                                                <input type="text" class="form-control" name="type_id" ng-model="$ctrl.cron_job.type.name" readonly>
+                                            </div><!-- Feild -->
+                                        </div><!-- Column -->
+                                        <div class="col-md-3">
+                                            <div class="input-text form-group">
+                                                <label>Name</label>
+                                                <input type="text" class="form-control" ng-model="$ctrl.cron_job.name" name="name" placeholder="Enter CronJob Name" autocomplete="off" readonly/>
+                                            </div><!-- Feild -->
+                                        </div><!-- Column -->
+                                        <div class="col-md-3">
+                                            <div class="input-text form-group">
+                                                <label>Frequency</label>
+                                                <input type="text" class="form-control" name="frequency_id" ng-model="$ctrl.cron_job.frequency.name" readonly>
+                                            </div><!-- Feild -->
+                                        </div><!-- Column -->
+                                        <div class="col-md-3" ng-if="$ctrl.cron_job.frequency_id == 1360">
+                                            <div class="input-text form-group">
+                                                <label>Custom <sup class="mandatory">*</sup></label>
+                                                <input type="text" class="form-control cron_job_custom" ng-model="$ctrl.cron_job.frequency_command" name="frequency_command" placeholder="Enter Frequency Command" autocomplete="off" readonly/>
+                                            </div><!-- Feild -->
+                                        </div><!-- Column -->
+                                        <div class="col-md-3">
+                                            <div class="input-text form-group">
+                                                <label>Allow Overlapping</label>
+                                                <input type="text" class="form-control" ng-model="$ctrl.allow_overlapping" name="allow_overlapping" autocomplete="off" readonly/>
+                                            </div><!-- Form Group -->
+                                        </div><!-- Column -->
+                                        <div class="col-md-3">
+                                            <div class="input-text form-group">
+                                                <label>Run In Background</label>
+                                                <input type="text" class="form-control" ng-model="$ctrl.run_in_background" name="run_in_background" autocomplete="off" readonly/>
+                                            </div><!-- Form Group -->
+                                        </div><!-- Column -->
+                                        <div class="col-md-3">
+                                            <div class="input-text form-group">
+                                                <label>Active Status</label>
+                                                <input type="text" class="form-control" ng-model="$ctrl.switch_value" name="status" autocomplete="off" readonly/>
+                                            </div><!-- Form Group -->
+                                        </div><!-- Column -->
+                                        <div class="tab-pane-footer">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <a class="btn btn-primary btn-nxt">Next</a>
+                                                </div>
+                                            </div>
+                                        </div><!-- Tab Footer -->
+                                    </div><!-- Row -->
+                                </div><!-- Tab Pane Wrap -->
+                            </div><!-- Tabe Pane -->
+                            <div class="tab-pane fade" id="address-details" data-animation="fadeInUp" data-animation-delay="300">
+                                <div class="tab-pane-wrap">
+                                    <div class="row">
+                                        <div class="col-lg-6 col-md-8">
+                                            <div class="table-responsive">
+                                                    <table class="table table-form">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="width-230">Key<sup class="mandatory">*</sup></th>
+                                                                <th class="width-230">Value<sup class="mandatory">*</sup></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="cron_job_parameter_list" ng-repeat="(index, cron_job_parameter) in $ctrl.cron_job.cron_job_parameters">
+                                                            <input type="hidden" name="cron_job_parameters[{{index}}][id]" value="{{cron_job_parameter.id}}">
+                                                            <input type="hidden" name="cron_job_parameters[{{index}}][cron_job_id]" value="{{$ctrl.cron_job.id}}">
+                                                            <tr>
+                                                                <td>
+                                                                    <input type="text" name="cron_job_parameters[{{index}}][key]" ng-model="cron_job_parameter.key" class="form-control cron_job_parameter" placeholder="Enter Key" autocomplete="off" readonly/>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" name="cron_job_parameters[{{index}}][value]" ng-model="cron_job_parameter.value" class="form-control cron_job_parameter" placeholder="Enter Value" autocomplete="off" readonly/>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                        <tfoot>
+                                                            <tr>
+                                                                <td colspan="2">
+                                                                </td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div><!-- Table Responsive -->
+                                            </div><!-- Column -->
+                                        </div>
+                                        <div class="tab-pane-footer">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <a class="btn btn-secondary btn-prev">Previous</a>
+                                                    <a href="#!/cron-job-pkg/cron-job/edit/{{$ctrl.cron_job.id}}" type="button" class="btn btn-primary">Edit</a>
+                                                </div>
+                                            </div>
+                                        </div><!-- Tab Footer -->
+                                    </div><!-- Row -->
+                                </div><!-- Tab Pane Wrap -->
+                            </div><!-- Tabe Pane -->
+                        </div><!-- Tab Content -->
+                    </div><!-- Tab Form Body -->
+                </div><!-- Tab Form Wrap -->
+            </div><!-- Page Form -->
+        <!-- </form> -->
+    </div><!-- Page Main Content -->
+</div><!-- Content Wrap -->
