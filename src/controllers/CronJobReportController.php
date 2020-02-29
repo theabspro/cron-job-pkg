@@ -77,8 +77,10 @@ AS duration"),
 			->addColumn('action', function ($cron_job_reports) {
 				$error = asset('/public/themes/' . $this->data['theme'] . '/img/content/icons/error_normal.svg');
 				$error_active = asset('/public/themes/' . $this->data['theme'] . '/img/content/icons/error_hover.svg');
+				$file_path = storage_path('public/cron-job-errors/' . $cron_job_reports->id . '.xls');
+
 				return
-				'<a href="public/cron-job-errors/' . $cron_job_reports->id . '.xlsx">
+					'<a href="' . $file_path . '">
 						<img src="' . $error . '" alt="Error_report" class="img-responsive" onmouseover=this.src="' . $error_active . '" onmouseout=this.src="' . $error . '" ></a>'
 				;
 			})
