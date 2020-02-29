@@ -27,8 +27,10 @@ app.component('cronJobList', {
                         "previous": '<i class="icon ion-ios-arrow-back"></i>'
                     },
                 },
-                pageLength: 10,
-                processing: true,
+                scrollX: true,
+                scrollY: table_scroll + "px",
+                scrollCollapse: true,
+                stateSave: true,
                 stateSaveCallback: function(settings, data) {
                     localStorage.setItem('CDataTables_' + settings.sInstance, JSON.stringify(data));
                 },
@@ -39,12 +41,11 @@ app.component('cronJobList', {
                     }
                     return JSON.parse(localStorage.getItem('CDataTables_' + settings.sInstance));
                 },
+                processing: true,
                 serverSide: true,
                 paging: true,
-                stateSave: true,
+                searching: true,
                 ordering: false,
-                scrollY: table_scroll + "px",
-                scrollCollapse: true,
                 ajax: {
                     url: laravel_routes['getCronJobList'],
                     type: "GET",
@@ -429,6 +430,7 @@ app.component('cronJobReportList', {
                 paging: true,
                 stateSave: true,
                 ordering: false,
+                scrollX: true,
                 scrollY: table_scroll + "px",
                 scrollCollapse: true,
                 ajax: {
