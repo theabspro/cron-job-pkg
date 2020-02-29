@@ -1,4 +1,4 @@
-@if(config('custom.PKG_DEV'))
+@if(config('cron-job-pkg.DEV'))
     <?php $cron_job_pkg_prefix = '/packages/abs/cron-job-pkg/src';?>
 @else
     <?php $cron_job_pkg_prefix = '';?>
